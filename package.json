@@ -7,18 +7,29 @@
     "build": "next build",
     "start": "next start",
     "lint": "oxlint --fix src",
-    "format": "prettier --write src"
+    "format": "prettier --write src",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio",
+    "db:format": "prisma format",
+    "db:reset": "prisma migrate reset"
   },
   "dependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "next": "15.3.5",
-    "typescript": "^5.8.3",
+    "@prisma/client": "^6.11.1",
+    "@tailwindcss/postcss": "^4.1.11",
     "@types/node": "^24.0.12",
+    "@types/pg": "^8.15.4",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
-    "@tailwindcss/postcss": "^4.1.11",
-    "tailwindcss": "^4.1.11"
+    "better-auth": "^1.2.12",
+    "next": "15.3.5",
+    "pg": "^8.16.3",
+    "prisma": "^6.11.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
     "oxlint": "^1.6.0",
