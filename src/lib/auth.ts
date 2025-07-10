@@ -4,7 +4,6 @@ import { PrismaClient } from ".prisma/client";
 
 const prisma = new PrismaClient();
 
-// Only include social providers if they have valid credentials
 const socialProviders: Record<string, any> = {};
 
 if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {

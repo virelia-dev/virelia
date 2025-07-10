@@ -3,15 +3,14 @@
 import { useState, useMemo } from "react";
 import { authClient } from "~/lib/auth-client";
 import { Button } from "~/components/ui/button";
+import { toast } from "sonner";
 
-// Helper function to parse Better Auth errors
 function parseAuthError(error: any): string {
   if (typeof error === "string") return error;
 
   if (error?.message) {
     const message = error.message.toLowerCase();
 
-    // Handle specific error cases
     if (message.includes("password is too short")) {
       return "Password must be at least 8 characters long.";
     }
@@ -43,7 +42,6 @@ function parseAuthError(error: any): string {
   return "An unexpected error occurred. Please try again.";
 }
 
-// Password strength validation
 function validatePassword(password: string) {
   const issues = [];
 
@@ -91,10 +89,17 @@ export function SignUpForm() {
       });
 
       if (result.error) {
-        setError(parseAuthError(result.error));
+        const errorMessage = parseAuthError(result.error);
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } else {
+        toast.success("Signed up with GitHub successfully!");
       }
     } catch (err) {
       console.error("GitHub sign up error:", err);
+      toast.error(
+        "Failed to sign up with GitHub. Please try again or contact support.",
+      );
       setError(parseAuthError(err));
     } finally {
       setIsLoading(false);
@@ -106,26 +111,28 @@ export function SignUpForm() {
     setIsLoading(true);
     setError("");
 
-    // Basic client-side validation
     if (!name.trim()) {
       setError("Name is required");
+      toast.error("Name is required");
       setIsLoading(false);
       return;
     }
     if (!email.trim()) {
       setError("Email is required");
+      toast.error("Email is required");
       setIsLoading(false);
       return;
     }
     if (!password.trim()) {
       setError("Password is required");
+      toast.error("Password is required");
       setIsLoading(false);
       return;
     }
     if (!passwordValidation.isValid) {
-      setError(
-        `Password requirements not met: ${passwordValidation.issues.join(", ")}`,
-      );
+      const errorMessage = `Password requirements not met: ${passwordValidation.issues.join(", ")}`;
+      setError(errorMessage);
+      toast.error(errorMessage);
       setIsLoading(false);
       return;
     }
@@ -138,14 +145,19 @@ export function SignUpForm() {
       });
 
       if (result.error) {
-        setError(parseAuthError(result.error));
+        const errorMessage = parseAuthError(result.error);
+        setError(errorMessage);
+        toast.error(errorMessage);
         return;
       }
 
+      toast.success("Account created successfully! Welcome!");
       window.location.href = "/";
     } catch (err) {
       console.error("Signup error:", err);
-      setError(parseAuthError(err));
+      const errorMessage = parseAuthError(err);
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -217,9 +229,9 @@ export function SignUpForm() {
         <div>
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-foreground"
+            className="block text-sm font-medium text-foreground "
           >
-            Full Name
+            Name
           </label>
           <input
             id="name"
@@ -228,14 +240,14 @@ export function SignUpForm() {
             onChange={(e) => setName(e.target.value)}
             required
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            placeholder="Your full name"
+            placeholder="Your display name"
           />
         </div>
 
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-foreground"
+            className="block text-sm font-medium text-foreground "
           >
             Email
           </label>
@@ -253,7 +265,7 @@ export function SignUpForm() {
         <div>
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-foreground"
+            className="block text-sm font-medium text-foreground "
           >
             Password
           </label>

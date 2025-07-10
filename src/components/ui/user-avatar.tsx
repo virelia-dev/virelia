@@ -10,12 +10,10 @@ interface UserAvatarProps {
 
 export function UserAvatar({ user, className }: UserAvatarProps) {
   const getAvatarUrl = () => {
-    // Use OAuth provider image if available
     if (user.image) {
       return user.image;
     }
 
-    // Fallback to Vercel avatar service using email or name
     const identifier = user.email || user.name || "anonymous";
     return `https://avatar.vercel.sh/${encodeURIComponent(identifier)}`;
   };

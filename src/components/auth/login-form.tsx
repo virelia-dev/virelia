@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { authClient } from "~/lib/auth-client";
 import { Button } from "~/components/ui/button";
+import { toast } from "sonner";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -56,10 +57,17 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       });
 
       if (result.error) {
-        setError(parseAuthError(result.error));
+        const errorMessage = parseAuthError(result.error);
+        setError(errorMessage);
+        toast.error(errorMessage);
+      } else {
+        toast.success("Signed in with GitHub successfully!");
       }
     } catch (err) {
       console.error("GitHub sign in error:", err);
+      toast.error(
+        "Failed to sign in with GitHub. Please try again or contact us.",
+      );
       setError(parseAuthError(err));
     } finally {
       setIsLoading(false);
@@ -73,11 +81,13 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
     if (!email.trim()) {
       setError("Email is required");
+      toast.error("Email is required");
       setIsLoading(false);
       return;
     }
     if (!password.trim()) {
       setError("Password is required");
+      toast.error("Password is required");
       setIsLoading(false);
       return;
     }
@@ -89,14 +99,19 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       });
 
       if (result.error) {
-        setError(parseAuthError(result.error));
+        const errorMessage = parseAuthError(result.error);
+        setError(errorMessage);
+        toast.error(errorMessage);
         return;
       }
 
+      toast.success("Signed in successfully!");
       onSuccess?.();
     } catch (err) {
       console.error("Login error:", err);
-      setError(parseAuthError(err));
+      const errorMessage = parseAuthError(err);
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -138,7 +153,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-foreground"
+            className="block text-sm font-medium text-foreground "
           >
             Email
           </label>
@@ -156,7 +171,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         <div>
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-foreground"
+            className="block text-sm font-medium text-foreground "
           >
             Password
           </label>

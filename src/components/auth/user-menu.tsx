@@ -5,6 +5,7 @@ import { authClient } from "~/lib/auth-client";
 import { User } from "better-auth/types";
 import { Button } from "~/components/ui/button";
 import { UserAvatar } from "~/components/ui/user-avatar";
+import { toast } from "sonner";
 
 interface UserMenuProps {
   user: User;
@@ -26,11 +27,11 @@ export function UserMenu({ user }: UserMenuProps) {
         return;
       }
 
-      // Force a page reload to clear any cached state
       window.location.href = "/";
     } catch (error) {
       console.error("Sign out failed:", error);
       setError("Failed to sign out. Please try again.");
+      toast.error("Failed to sign out. Please try again.");
     } finally {
       setIsLoading(false);
     }
