@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Virelia
 
-## Getting Started
+Free, open-source URL shortener with analytics and UTM support from the developer of [AnonHost](https://github.com/keircn/AnonHost)
 
-First, run the development server:
+### Nothing to see here
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+While the project is currently in a usable state, it's nowhere near production. Feel free to run it on your machine if you're interested in helping out with development.
+
+### Installation
+
+We use bun. Don't use it if you wish not to, but make sure to gitignore your lockfiles as we don't want a mess of 13 different package managers in the project root.
+
+```
+cp .env.example .env # and fill out the variables, obviously
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+then to install the darned thing
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+bun i # or pnpm (npm sucks and yarn fell off)
+bun run build
+bun run start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Etc
 
-## Learn More
+Couple quick notes:
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- oAuth is optional, betterauth just has good support for it. We likely will only use GitHub oAuth in production as GCP is a mess
+- I am quite particular about my projects, so be prepared for pedantic code review comments
+- You can contact me at any time by [Email](mailto:keircn@proton.me) or by [Discord](https://discord.com/users/1000571225808048188)
+- Obligatory `I use Arch BTW`
