@@ -87,27 +87,6 @@ export default function Home() {
               <Link href="/login">Sign In</Link>
             </Button>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-3xl mx-auto">
-            <div className="p-6 rounded-lg border bg-card/50 backdrop-blur">
-              <h3 className="font-semibold mb-2">🚀 Lightning Fast</h3>
-              <p className="text-sm text-muted-foreground">
-                Create short links in seconds with our optimized interface
-              </p>
-            </div>
-            <div className="p-6 rounded-lg border bg-card/50 backdrop-blur">
-              <h3 className="font-semibold mb-2">📊 Analytics</h3>
-              <p className="text-sm text-muted-foreground">
-                Track clicks, locations, and devices with detailed analytics
-              </p>
-            </div>
-            <div className="p-6 rounded-lg border bg-card/50 backdrop-blur">
-              <h3 className="font-semibold mb-2">🔧 Advanced Features</h3>
-              <p className="text-sm text-muted-foreground">
-                QR codes, bulk import, UTM parameters, and more
-              </p>
-            </div>
-          </div>
         </div>
       </main>
     </div>
