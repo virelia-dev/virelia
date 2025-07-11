@@ -8,6 +8,10 @@ on:
     branches:
       - main
 
+env:
+  BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+  baseURL: ${{ secrets.BETTER_AUTH_URL }}
+
 jobs:
   build:
     name: Build and Test
