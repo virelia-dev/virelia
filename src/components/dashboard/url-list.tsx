@@ -33,6 +33,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { QRCodeComponent } from "~/components/ui/qr-code";
 import { toast } from "sonner";
+import Link from "next/link";
 
 interface Url {
   id: string;
@@ -83,7 +84,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
   const copyToClipboard = async (shortCode: string, id: string) => {
     try {
       await navigator.clipboard.writeText(
-        `${window.location.origin}/${shortCode}`
+        `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/${shortCode}`,
       );
       setCopiedId(id);
       toast.success("URL copied to clipboard!");
@@ -109,7 +110,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
       if (response.ok) {
         fetchUrls();
         toast.success(
-          `URL ${!currentStatus ? "activated" : "deactivated"} successfully!`
+          `URL ${!currentStatus ? "activated" : "deactivated"} successfully!`,
         );
       } else {
         toast.error("Failed to update URL status");
@@ -141,7 +142,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
   };
 
   const showQRCode = (shortCode: string) => {
-    const fullUrl = `${window.location.origin}/${shortCode}`;
+    const fullUrl = `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/${shortCode}`;
     setQrCodeUrl(fullUrl);
   };
 
@@ -200,7 +201,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
     (url) =>
       url.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       url.originalUrl.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      url.shortCode.toLowerCase().includes(searchQuery.toLowerCase())
+      url.shortCode.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const formatDate = (dateString: string) => {
@@ -280,8 +281,9 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono text-sm bg-popover px-2 py-1 rounded border">
-                        {window.location.origin}/{url.shortCode}
-                      </span>
+                        {process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/
+                        {url.shortCode}
+                      </span>{" "}
                       <Button
                         size="sm"
                         variant="ghost"
@@ -335,7 +337,9 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                       </DropdownMenuItem>
                       <DropdownMenuItem className="flex items-center gap-2">
                         <BarChart3 className="h-4 w-4" />
-                        View Analytics
+                        <Link href={`/dashboard/analytics/${url.id}`}>
+                          View Analytics
+                        </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => openEditDialog(url)}
@@ -394,7 +398,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
       </CardContent>
 
       {qrCodeUrl && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-card flex items-center justify-center z-50">
           <div className="bg-background border rounded-lg p-6 max-w-sm w-full mx-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">QR Code</h3>
@@ -415,7 +419,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
       )}
 
       {editingUrl && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-card flex items-center justify-center z-50">
           <div className="bg-background border rounded-lg p-6 max-w-md w-full mx-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Edit URL</h3>

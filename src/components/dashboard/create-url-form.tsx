@@ -78,7 +78,7 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
     if (createdUrl) {
       try {
         await navigator.clipboard.writeText(
-          `${window.location.origin}/${createdUrl.shortCode}`,
+          `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/${createdUrl.shortCode}`,
         );
         setCopied(true);
         toast.success("URL copied to clipboard!");
@@ -101,7 +101,7 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
   };
 
   const shortUrl = createdUrl
-    ? `${window.location.origin}/${createdUrl.shortCode}`
+    ? `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/${createdUrl.shortCode}`
     : "";
 
   return (

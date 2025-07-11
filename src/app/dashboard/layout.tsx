@@ -34,7 +34,10 @@ export default function DashboardLayout({
   );
 
   return (
-    <div className="flex h-screen pt-16 overflow-hidden">
+    <div
+      suppressHydrationWarning
+      className="flex h-screen pt-16 overflow-hidden"
+    >
       <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:top-16 md:bottom-0 md:z-40 md:bg-background">
         <div className="flex flex-col h-full border-r border-border bg-background">
           <Sidebar />
