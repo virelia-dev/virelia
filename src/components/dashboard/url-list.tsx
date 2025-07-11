@@ -39,6 +39,7 @@ interface Url {
   shortCode: string;
   originalUrl: string;
   title?: string;
+  description?: string;
   isActive: boolean;
   expiresAt?: string;
   createdAt: string;
@@ -57,6 +58,8 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+  const [editingUrl, setEditingUrl] = useState<Url | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   const fetchUrls = async () => {
     try {
@@ -144,6 +147,53 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
 
   const closeQRCode = () => {
     setQrCodeUrl(null);
+  };
+
+  const openEditDialog = (url: Url) => {
+    setEditingUrl(url);
+  };
+
+  const closeEditDialog = () => {
+    setEditingUrl(null);
+    setIsEditing(false);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editingUrl) return;
+
+    setIsEditing(true);
+    try {
+      const formData = new FormData(e.currentTarget);
+      const title = formData.get("title") as string;
+      const description = formData.get("description") as string;
+      const expiresAt = formData.get("expiresAt") as string;
+
+      const response = await fetch(`/api/urls/${editingUrl.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: title || null,
+          description: description || null,
+          expiresAt: expiresAt || null,
+        }),
+      });
+
+      if (response.ok) {
+        await fetchUrls();
+        toast.success("URL updated successfully!");
+        closeEditDialog();
+      } else {
+        toast.error("Failed to update URL");
+      }
+    } catch (error) {
+      console.error("Error updating URL:", error);
+      toast.error("Failed to update URL. Please try again.");
+    } finally {
+      setIsEditing(false);
+    }
   };
 
   const filteredUrls = urls.filter(
@@ -287,7 +337,10 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                         <BarChart3 className="h-4 w-4" />
                         View Analytics
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="flex items-center gap-2">
+                      <DropdownMenuItem
+                        onClick={() => openEditDialog(url)}
+                        className="flex items-center gap-2"
+                      >
                         <Edit2 className="h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
@@ -357,6 +410,108 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
             <div className="flex justify-center">
               <QRCodeComponent value={qrCodeUrl} size={200} />
             </div>
+          </div>
+        </div>
+      )}
+
+      {editingUrl && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-background border rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Edit URL</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={closeEditDialog}
+                className="h-8 w-8 p-0"
+                disabled={isEditing}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Short Code</label>
+                <Input
+                  value={editingUrl.shortCode}
+                  disabled
+                  className="bg-muted"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Short codes cannot be changed
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Original URL</label>
+                <Input
+                  value={editingUrl.originalUrl}
+                  disabled
+                  className="bg-muted"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Original URL cannot be changed
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Title (Optional)</label>
+                <Input
+                  name="title"
+                  defaultValue={editingUrl.title || ""}
+                  placeholder="Descriptive title for your link"
+                  disabled={isEditing}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Description (Optional)
+                </label>
+                <Input
+                  name="description"
+                  defaultValue={editingUrl.description || ""}
+                  placeholder="Brief description of the link"
+                  disabled={isEditing}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Expires At (Optional)
+                </label>
+                <Input
+                  name="expiresAt"
+                  type="datetime-local"
+                  defaultValue={
+                    editingUrl.expiresAt
+                      ? new Date(editingUrl.expiresAt)
+                          .toISOString()
+                          .slice(0, 16)
+                      : ""
+                  }
+                  disabled={isEditing}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Leave blank for no expiration
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={closeEditDialog}
+                  disabled={isEditing}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isEditing}>
+                  {isEditing ? "Saving..." : "Save Changes"}
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
       )}

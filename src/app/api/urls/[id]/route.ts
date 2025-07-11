@@ -15,7 +15,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { isActive, title } = body;
+    const { isActive, title, description, expiresAt } = body;
     const { id } = await params;
 
     const existingUrl = await prisma.url.findFirst({
@@ -34,6 +34,10 @@ export async function PATCH(
       data: {
         ...(isActive !== undefined && { isActive }),
         ...(title !== undefined && { title }),
+        ...(description !== undefined && { description }),
+        ...(expiresAt !== undefined && {
+          expiresAt: expiresAt ? new Date(expiresAt) : null,
+        }),
       },
     });
 
