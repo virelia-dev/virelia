@@ -321,7 +321,7 @@ export function AnalyticsDashboard() {
           </CardContent>
         </Card>
 
-        <Card hidden>
+        <Card>
           <CardHeader>
             <CardTitle>Top Countries</CardTitle>
             <CardDescription>Clicks by geographic location</CardDescription>

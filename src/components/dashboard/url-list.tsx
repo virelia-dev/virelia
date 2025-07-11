@@ -22,6 +22,8 @@ import {
   BarChart3,
   Calendar,
   Link as LinkIcon,
+  QrCode,
+  X,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -29,6 +31,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { QRCodeComponent } from "~/components/ui/qr-code";
 import { toast } from "sonner";
 
 interface Url {
@@ -53,6 +56,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
 
   const fetchUrls = async () => {
     try {
@@ -76,7 +80,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
   const copyToClipboard = async (shortCode: string, id: string) => {
     try {
       await navigator.clipboard.writeText(
-        `${window.location.origin}/${shortCode}`,
+        `${window.location.origin}/${shortCode}`
       );
       setCopiedId(id);
       toast.success("URL copied to clipboard!");
@@ -102,7 +106,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
       if (response.ok) {
         fetchUrls();
         toast.success(
-          `URL ${!currentStatus ? "activated" : "deactivated"} successfully!`,
+          `URL ${!currentStatus ? "activated" : "deactivated"} successfully!`
         );
       } else {
         toast.error("Failed to update URL status");
@@ -133,11 +137,20 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
     }
   };
 
+  const showQRCode = (shortCode: string) => {
+    const fullUrl = `${window.location.origin}/${shortCode}`;
+    setQrCodeUrl(fullUrl);
+  };
+
+  const closeQRCode = () => {
+    setQrCodeUrl(null);
+  };
+
   const filteredUrls = urls.filter(
     (url) =>
       url.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       url.originalUrl.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      url.shortCode.toLowerCase().includes(searchQuery.toLowerCase()),
+      url.shortCode.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const formatDate = (dateString: string) => {
@@ -263,6 +276,13 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => showQRCode(url.shortCode)}
+                        className="flex items-center gap-2"
+                      >
+                        <QrCode className="h-4 w-4" />
+                        Show QR Code
+                      </DropdownMenuItem>
                       <DropdownMenuItem className="flex items-center gap-2">
                         <BarChart3 className="h-4 w-4" />
                         View Analytics
@@ -319,6 +339,27 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
           </div>
         )}
       </CardContent>
+
+      {qrCodeUrl && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-background border rounded-lg p-6 max-w-sm w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">QR Code</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={closeQRCode}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex justify-center">
+              <QRCodeComponent value={qrCodeUrl} size={200} />
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
