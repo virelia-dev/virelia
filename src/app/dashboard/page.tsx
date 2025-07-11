@@ -13,6 +13,7 @@ import { AnalyticsDashboard } from "~/components/dashboard/analytics-dashboard";
 import { StatsCards } from "~/components/dashboard/stats-cards";
 import { MobileNav } from "~/components/dashboard/mobile-nav";
 import { DesktopTabs } from "~/components/dashboard/desktop-tabs";
+import { BulkUrlImport } from "~/components/dashboard/bulk-url-import";
 import { toast } from "sonner";
 
 export default function DashboardPage() {
@@ -74,6 +75,10 @@ export default function DashboardPage() {
     setActiveTab("manage");
   };
 
+  const handleBulkImportComplete = () => {
+    setRefreshUrlList((prev) => prev + 1);
+  };
+
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
@@ -129,7 +134,6 @@ export default function DashboardPage() {
   }
 
   if (!user) {
-    redirect("/login");
     return null;
   }
 
@@ -137,8 +141,8 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background">
       <MobileNav activeTab={activeTab} onTabChangeAction={handleTabChange} />
 
-      <div className="mx-auto py-4 md:px-6 lg:px-8">
-        <div className="space-y-4">
+      <div className="container mx-auto px-4 py-4 md:px-6 lg:px-8 max-w-7xl">
+        <div className="space-y-6">
           <div className="space-y-2 pt-16 md:pt-0">
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-muted-foreground">
@@ -161,6 +165,14 @@ export default function DashboardPage() {
           {activeTab === "create" && (
             <div>
               <CreateUrlForm onUrlCreated={handleUrlCreated} />
+            </div>
+          )}
+
+          {activeTab === "import" && (
+            <div>
+              <BulkUrlImport
+                onImportCompleteAction={handleBulkImportComplete}
+              />
             </div>
           )}
 

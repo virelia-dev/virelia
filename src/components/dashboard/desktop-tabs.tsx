@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "~/components/ui/button";
-import { BarChart3, Link, Settings, Home } from "lucide-react";
+import { BarChart3, Link, Settings, Home, Upload } from "lucide-react";
 import { useIsMobile } from "~/hooks/use-mobile";
 
 interface DesktopTabsProps {
@@ -22,6 +22,7 @@ export function DesktopTabs({
   const tabs = [
     { id: "overview", label: "Overview", icon: Home },
     { id: "create", label: "Create URL", icon: Link },
+    { id: "import", label: "Bulk Import", icon: Upload },
     { id: "manage", label: "Manage URLs", icon: Settings },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
   ];

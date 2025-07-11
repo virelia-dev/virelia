@@ -22,36 +22,48 @@ interface StatsCardsProps {
 export function StatsCards({ stats, className = "" }: StatsCardsProps) {
   return (
     <div
-      className={`grid gap-4 grid-cols-1 lg:grid-cols-3 sm:grid-cols-1 ${className}`}
+      className={`grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ${className}`}
     >
       {stats.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+          <Card
+            key={index}
+            className="hover:shadow-md transition-shadow duration-200"
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 {stat.title}
               </CardTitle>
-              <Icon className="h-4 w-4 text-muted-foreground" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Icon className="h-4 w-4 text-primary" />
+              </div>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
+            <CardContent className="pt-0">
+              <div className="text-2xl font-bold tracking-tight">
+                {stat.value}
+              </div>
               {stat.description && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground mt-1">
                   {stat.description}
                 </p>
               )}
               {stat.trend && (
-                <p
-                  className={`text-xs ${
-                    stat.trend.isPositive
-                      ? "text-green-600 dark:text-green-400"
-                      : "text-red-600 dark:text-red-400"
-                  }`}
-                >
-                  {stat.trend.isPositive ? "+" : ""}
-                  {stat.trend.value}
-                </p>
+                <div className="flex items-center mt-2">
+                  <p
+                    className={`text-xs font-medium flex items-center ${
+                      stat.trend.isPositive
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-red-600 dark:text-red-400"
+                    }`}
+                  >
+                    <span className="mr-1">
+                      {stat.trend.isPositive ? "↗" : "↘"}
+                    </span>
+                    {stat.trend.isPositive ? "+" : ""}
+                    {stat.trend.value}
+                  </p>
+                </div>
               )}
             </CardContent>
           </Card>
