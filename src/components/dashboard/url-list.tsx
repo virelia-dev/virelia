@@ -61,6 +61,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [editingUrl, setEditingUrl] = useState<Url | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [filter, setFilter] = useState<"all" | "expired" | "expiring">("all");
 
   const fetchUrls = async () => {
     try {
@@ -197,12 +198,26 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
     }
   };
 
-  const filteredUrls = urls.filter(
-    (url) =>
+  const filteredUrls = urls.filter((url) => {
+    const matchesSearch =
       url.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       url.originalUrl.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      url.shortCode.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+      url.shortCode.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (!matchesSearch) return false;
+
+    if (filter === "expired") {
+      return url.expiresAt && isExpired(url.expiresAt);
+    }
+    if (filter === "expiring") {
+      return (
+        url.expiresAt &&
+        isExpiringSoon(url.expiresAt) &&
+        !isExpired(url.expiresAt)
+      );
+    }
+    return true; // "all"
+  });
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString(undefined, {
@@ -210,6 +225,29 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
       month: "short",
       day: "numeric",
     });
+  };
+
+  const isExpired = (expiresAt: string) => {
+    return new Date(expiresAt) < new Date();
+  };
+
+  const isExpiringSoon = (expiresAt: string) => {
+    const expiry = new Date(expiresAt);
+    const now = new Date();
+    const daysDiff = (expiry.getTime() - now.getTime()) / (1000 * 3600 * 24);
+    return daysDiff > 0 && daysDiff <= 7; // Expires within 7 days
+  };
+
+  const getExpiryBadgeVariant = (expiresAt: string) => {
+    if (isExpired(expiresAt)) return "destructive";
+    if (isExpiringSoon(expiresAt)) return "secondary";
+    return "outline";
+  };
+
+  const getExpiryText = (expiresAt: string) => {
+    if (isExpired(expiresAt)) return "Expired";
+    if (isExpiringSoon(expiresAt)) return "Expires soon";
+    return `Expires ${formatDate(expiresAt)}`;
   };
 
   if (isLoading) {
@@ -253,6 +291,31 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
               className="pl-9"
             />
           </div>
+          <div className="flex gap-1">
+            <Button
+              variant={filter === "all" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilter("all")}
+            >
+              All
+            </Button>
+            <Button
+              variant={filter === "expiring" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilter("expiring")}
+              className="text-xs"
+            >
+              Expiring
+            </Button>
+            <Button
+              variant={filter === "expired" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilter("expired")}
+              className="text-xs"
+            >
+              Expired
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -275,7 +338,13 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
             {filteredUrls.map((url) => (
               <div
                 key={url.id}
-                className="border rounded-lg p-4 space-y-3 hover:bg-accent/50 transition-colors"
+                className={`border rounded-lg p-4 space-y-3 hover:bg-accent/50 transition-colors ${
+                  url.expiresAt && isExpired(url.expiresAt)
+                    ? "border-destructive/50 bg-destructive/5"
+                    : url.expiresAt && isExpiringSoon(url.expiresAt)
+                      ? "border-secondary/50 bg-secondary/5"
+                      : ""
+                }`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 space-y-2">
@@ -379,11 +448,11 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                     </Badge>
                     {url.expiresAt && (
                       <Badge
-                        variant="outline"
+                        variant={getExpiryBadgeVariant(url.expiresAt)}
                         className="flex items-center gap-1"
                       >
                         <Calendar className="h-3 w-3" />
-                        Expires {formatDate(url.expiresAt)}
+                        {getExpiryText(url.expiresAt)}
                       </Badge>
                     )}
                   </div>
@@ -485,21 +554,90 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                 <label className="text-sm font-medium">
                   Expires At (Optional)
                 </label>
-                <Input
-                  name="expiresAt"
-                  type="datetime-local"
-                  defaultValue={
-                    editingUrl.expiresAt
-                      ? new Date(editingUrl.expiresAt)
-                          .toISOString()
-                          .slice(0, 16)
-                      : ""
-                  }
-                  disabled={isEditing}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Leave blank for no expiration
-                </p>
+                <div className="space-y-2">
+                  <div className="flex gap-2 flex-wrap">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const date = new Date();
+                        date.setHours(date.getHours() + 24);
+                        const input = document.querySelector(
+                          'input[name="expiresAt"]',
+                        ) as HTMLInputElement;
+                        if (input)
+                          input.value = date.toISOString().slice(0, 16);
+                      }}
+                      disabled={isEditing}
+                    >
+                      24h
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const date = new Date();
+                        date.setDate(date.getDate() + 7);
+                        const input = document.querySelector(
+                          'input[name="expiresAt"]',
+                        ) as HTMLInputElement;
+                        if (input)
+                          input.value = date.toISOString().slice(0, 16);
+                      }}
+                      disabled={isEditing}
+                    >
+                      1 week
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const date = new Date();
+                        date.setMonth(date.getMonth() + 1);
+                        const input = document.querySelector(
+                          'input[name="expiresAt"]',
+                        ) as HTMLInputElement;
+                        if (input)
+                          input.value = date.toISOString().slice(0, 16);
+                      }}
+                      disabled={isEditing}
+                    >
+                      1 month
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const input = document.querySelector(
+                          'input[name="expiresAt"]',
+                        ) as HTMLInputElement;
+                        if (input) input.value = "";
+                      }}
+                      disabled={isEditing}
+                    >
+                      Never
+                    </Button>
+                  </div>
+                  <Input
+                    name="expiresAt"
+                    type="datetime-local"
+                    defaultValue={
+                      editingUrl.expiresAt
+                        ? new Date(editingUrl.expiresAt)
+                            .toISOString()
+                            .slice(0, 16)
+                        : ""
+                    }
+                    disabled={isEditing}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Leave blank for no expiration
+                  </p>
+                </div>
               </div>
 
               <div className="flex justify-end gap-2 pt-4">

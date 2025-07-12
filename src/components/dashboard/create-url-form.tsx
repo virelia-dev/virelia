@@ -219,12 +219,60 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
                         >
                           Expiration (optional)
                         </label>
-                        <Input
-                          id="expiresAt"
-                          type="datetime-local"
-                          value={expiresAt}
-                          onChange={(e) => setExpiresAt(e.target.value)}
-                        />
+                        <div className="space-y-2">
+                          <div className="flex gap-2 flex-wrap">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const date = new Date();
+                                date.setHours(date.getHours() + 24);
+                                setExpiresAt(date.toISOString().slice(0, 16));
+                              }}
+                            >
+                              24h
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const date = new Date();
+                                date.setDate(date.getDate() + 7);
+                                setExpiresAt(date.toISOString().slice(0, 16));
+                              }}
+                            >
+                              1 week
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const date = new Date();
+                                date.setMonth(date.getMonth() + 1);
+                                setExpiresAt(date.toISOString().slice(0, 16));
+                              }}
+                            >
+                              1 month
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setExpiresAt("")}
+                            >
+                              Never
+                            </Button>
+                          </div>
+                          <Input
+                            id="expiresAt"
+                            type="datetime-local"
+                            value={expiresAt}
+                            onChange={(e) => setExpiresAt(e.target.value)}
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
