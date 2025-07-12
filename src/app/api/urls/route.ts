@@ -16,6 +16,7 @@ export async function GET() {
         userId: authData.user.id,
       },
       include: {
+        domain: true,
         _count: {
           select: {
             clicks: true,
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { originalUrl, title, tags, expiresAt } = body;
+    const { originalUrl, title, tags, domainId, expiresAt } = body;
 
     if (!originalUrl) {
       return NextResponse.json(
@@ -73,6 +74,7 @@ export async function POST(request: NextRequest) {
         originalUrl,
         title: title || null,
         tags: tags || null,
+        domainId: domainId || null,
         expiresAt: expiresAt ? new Date(expiresAt) : null,
         userId: authData.user.id,
       },

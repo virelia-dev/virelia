@@ -15,6 +15,7 @@ import { StatsCards } from "~/components/dashboard/stats-cards";
 import { MobileNav } from "~/components/dashboard/mobile-nav";
 import { DesktopTabs } from "~/components/dashboard/desktop-tabs";
 import { BulkUrlImport } from "~/components/dashboard/bulk-url-import";
+import { DomainManagement } from "~/components/dashboard/domain-management";
 import { toast } from "sonner";
 
 export default function DashboardPage() {
@@ -272,6 +273,18 @@ export default function DashboardPage() {
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               >
                 <AnalyticsDashboard />
+              </motion.div>
+            )}
+
+            {activeTab === "domains" && (
+              <motion.div
+                key="domains"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <DomainManagement />
               </motion.div>
             )}
           </AnimatePresence>

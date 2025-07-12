@@ -45,6 +45,11 @@ interface Url {
   isActive: boolean;
   expiresAt?: string;
   createdAt: string;
+  domain?: {
+    id: string;
+    domain: string;
+    isDefault: boolean;
+  };
   _count?: {
     clicks: number;
   };
@@ -83,11 +88,16 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
     fetchUrls();
   }, [refreshTrigger]);
 
-  const copyToClipboard = async (shortCode: string, id: string) => {
+  const copyToClipboard = async (
+    shortCode: string,
+    id: string,
+    domain?: { domain: string },
+  ) => {
     try {
-      await navigator.clipboard.writeText(
-        `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/${shortCode}`,
-      );
+      const baseUrl = domain?.domain
+        ? `https://${domain.domain}`
+        : process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
+      await navigator.clipboard.writeText(`${baseUrl}/${shortCode}`);
       setCopiedId(id);
       toast.success("URL copied to clipboard!");
       setTimeout(() => setCopiedId(null), 2000);
@@ -354,13 +364,20 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono text-sm bg-popover px-2 py-1 rounded border">
-                        {process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/
-                        {url.shortCode}
+                        {url.domain?.domain
+                          ? `${url.domain.domain}`
+                          : process.env.NEXT_PUBLIC_BETTER_AUTH_URL?.replace(
+                              "https://",
+                              "",
+                            )}
+                        /{url.shortCode}
                       </span>{" "}
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => copyToClipboard(url.shortCode, url.id)}
+                        onClick={() =>
+                          copyToClipboard(url.shortCode, url.id, url.domain)
+                        }
                         className="h-6 w-6 p-0"
                       >
                         {copiedId === url.id ? (

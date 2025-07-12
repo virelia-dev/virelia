@@ -3,7 +3,15 @@
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
-import { Menu, BarChart3, Link, Settings, Home, Upload } from "lucide-react";
+import {
+  Menu,
+  BarChart3,
+  Link,
+  Settings,
+  Home,
+  Upload,
+  Globe,
+} from "lucide-react";
 import { useIsMobile } from "~/hooks/use-mobile";
 
 interface MobileNavProps {
@@ -20,6 +28,7 @@ export function MobileNav({ activeTab, onTabChangeAction }: MobileNavProps) {
     { id: "create", label: "Create URL", icon: Link },
     { id: "import", label: "Bulk Import", icon: Upload },
     { id: "manage", label: "Manage URLs", icon: Settings },
+    { id: "domains", label: "Domains", icon: Globe },
     { id: "analytics", label: "Analytics", icon: BarChart3 },
   ];
 
