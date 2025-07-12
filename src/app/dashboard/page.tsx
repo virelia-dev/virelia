@@ -6,6 +6,7 @@ import { User } from "better-auth/types";
 import { Skeleton } from "~/components/ui/skeleton";
 import { redirect } from "next/navigation";
 import { Link as LinkIcon, TrendingUp, Calendar } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 
 import { CreateUrlForm } from "~/components/dashboard/create-url-form";
 import { UrlList } from "~/components/dashboard/url-list";
@@ -106,30 +107,63 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <motion.div
+        className="min-h-screen bg-background"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="container mx-auto px-4 py-6 md:px-6 lg:px-8 space-y-6">
-          <div className="space-y-2">
+          <motion.div
+            className="space-y-2"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
             <Skeleton className="h-8 w-48" />
             <Skeleton className="h-6 w-96" />
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          </motion.div>
+          <motion.div
+            className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="border rounded-lg p-6">
+              <motion.div
+                key={i}
+                className="border rounded-lg p-6"
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.3 + i * 0.1 }}
+              >
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-24" />
                   <Skeleton className="h-8 w-16" />
                   <Skeleton className="h-3 w-32" />
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
-          <div className="space-y-4">
+          </motion.div>
+          <motion.div
+            className="space-y-4"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+          >
             {[...Array(3)].map((_, i) => (
-              <Skeleton key={i} className="h-32 w-full" />
+              <motion.div
+                key={i}
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.8 + i * 0.1 }}
+              >
+                <Skeleton className="h-32 w-full" />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -138,51 +172,111 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <motion.div
+      className="min-h-screen bg-background"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <MobileNav activeTab={activeTab} onTabChangeAction={handleTabChange} />
 
       <div className="container mx-auto px-4 py-4 md:px-6 lg:px-8 max-w-7xl">
-        <div className="space-y-6">
-          <div className="space-y-2 pt-16 md:pt-0">
+        <motion.div
+          className="space-y-6"
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <motion.div
+            className="space-y-2 pt-16 md:pt-0"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-muted-foreground">
               Welcome back, {user.name || user.email}!
             </p>
-          </div>
+          </motion.div>
 
-          <DesktopTabs
-            activeTab={activeTab}
-            onTabChangeAction={handleTabChange}
-          />
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <DesktopTabs
+              activeTab={activeTab}
+              onTabChangeAction={handleTabChange}
+            />
+          </motion.div>
 
-          {activeTab === "overview" && (
-            <div className="space-y-6">
-              <StatsCards stats={overviewStats} />
-              <CreateUrlForm onUrlCreated={handleUrlCreated} />
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {activeTab === "overview" && (
+              <motion.div
+                key="overview"
+                className="space-y-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <StatsCards stats={overviewStats} />
+                <CreateUrlForm onUrlCreated={handleUrlCreated} />
+              </motion.div>
+            )}
 
-          {activeTab === "create" && (
-            <div>
-              <CreateUrlForm onUrlCreated={handleUrlCreated} />
-            </div>
-          )}
+            {activeTab === "create" && (
+              <motion.div
+                key="create"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <CreateUrlForm onUrlCreated={handleUrlCreated} />
+              </motion.div>
+            )}
 
-          {activeTab === "import" && (
-            <div>
-              <BulkUrlImport
-                onImportCompleteAction={handleBulkImportComplete}
-              />
-            </div>
-          )}
+            {activeTab === "import" && (
+              <motion.div
+                key="import"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <BulkUrlImport
+                  onImportCompleteAction={handleBulkImportComplete}
+                />
+              </motion.div>
+            )}
 
-          {activeTab === "manage" && (
-            <UrlList refreshTrigger={refreshUrlList} />
-          )}
+            {activeTab === "manage" && (
+              <motion.div
+                key="manage"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <UrlList refreshTrigger={refreshUrlList} />
+              </motion.div>
+            )}
 
-          {activeTab === "analytics" && <AnalyticsDashboard />}
-        </div>
+            {activeTab === "analytics" && (
+              <motion.div
+                key="analytics"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <AnalyticsDashboard />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
