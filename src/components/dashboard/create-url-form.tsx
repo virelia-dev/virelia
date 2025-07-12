@@ -24,6 +24,7 @@ interface CreateUrlFormProps {
 export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
   const [originalUrl, setOriginalUrl] = useState("");
   const [title, setTitle] = useState("");
+  const [tags, setTags] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -46,6 +47,7 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
         body: JSON.stringify({
           originalUrl,
           title: title || null,
+          tags: tags || null,
           expiresAt: expiresAt || null,
           password: password || null,
         }),
@@ -59,6 +61,7 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
       setCreatedUrl(newUrl);
       setOriginalUrl("");
       setTitle("");
+      setTags("");
       setExpiresAt("");
       setPassword("");
       setShowAdvanced(false);
@@ -194,6 +197,22 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
                           value={title}
                           onChange={(e) => setTitle(e.target.value)}
                         />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label htmlFor="tags" className="text-sm font-medium">
+                          Tags (optional)
+                        </label>
+                        <Input
+                          id="tags"
+                          type="text"
+                          placeholder="work, marketing, social (comma-separated)"
+                          value={tags}
+                          onChange={(e) => setTags(e.target.value)}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Separate multiple tags with commas
+                        </p>
                       </div>
 
                       <div className="space-y-2">

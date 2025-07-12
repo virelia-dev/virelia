@@ -41,6 +41,7 @@ interface Url {
   originalUrl: string;
   title?: string;
   description?: string;
+  tags?: string;
   isActive: boolean;
   expiresAt?: string;
   createdAt: string;
@@ -169,6 +170,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
       const formData = new FormData(e.currentTarget);
       const title = formData.get("title") as string;
       const description = formData.get("description") as string;
+      const tags = formData.get("tags") as string;
       const expiresAt = formData.get("expiresAt") as string;
 
       const response = await fetch(`/api/urls/${editingUrl.id}`, {
@@ -179,6 +181,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
         body: JSON.stringify({
           title: title || null,
           description: description || null,
+          tags: tags || null,
           expiresAt: expiresAt || null,
         }),
       });
@@ -202,7 +205,8 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
     const matchesSearch =
       url.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       url.originalUrl.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      url.shortCode.toLowerCase().includes(searchQuery.toLowerCase());
+      url.shortCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      url.tags?.toLowerCase().includes(searchQuery.toLowerCase());
 
     if (!matchesSearch) return false;
 
@@ -235,7 +239,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
     const expiry = new Date(expiresAt);
     const now = new Date();
     const daysDiff = (expiry.getTime() - now.getTime()) / (1000 * 3600 * 24);
-    return daysDiff > 0 && daysDiff <= 7; // Expires within 7 days
+    return daysDiff > 0 && daysDiff <= 7;
   };
 
   const getExpiryBadgeVariant = (expiresAt: string) => {
@@ -383,6 +387,23 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
 
                     {url.title && (
                       <h3 className="font-medium text-sm">{url.title}</h3>
+                    )}
+
+                    {url.tags && (
+                      <div className="flex gap-1 flex-wrap">
+                        {url.tags
+                          .split(",")
+                          .filter((tag) => tag.trim())
+                          .map((tag, index) => (
+                            <Badge
+                              key={index}
+                              variant="secondary"
+                              className="text-xs"
+                            >
+                              {tag.trim()}
+                            </Badge>
+                          ))}
+                      </div>
                     )}
 
                     <p className="text-sm text-muted-foreground break-all">
@@ -548,6 +569,19 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                   placeholder="Brief description of the link"
                   disabled={isEditing}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Tags (Optional)</label>
+                <Input
+                  name="tags"
+                  defaultValue={editingUrl.tags || ""}
+                  placeholder="work, marketing, social (comma-separated)"
+                  disabled={isEditing}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Separate multiple tags with commas
+                </p>
               </div>
 
               <div className="space-y-2">

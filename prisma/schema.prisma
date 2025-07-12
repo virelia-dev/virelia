@@ -85,6 +85,7 @@ model Url {
   originalUrl String
   title       String?
   description String?
+  tags        String?
   userId      String
   isActive    Boolean   @default(true)
   expiresAt   DateTime?

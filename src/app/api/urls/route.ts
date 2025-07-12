@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { originalUrl, title, expiresAt } = body;
+    const { originalUrl, title, tags, expiresAt } = body;
 
     if (!originalUrl) {
       return NextResponse.json(
@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
         shortCode,
         originalUrl,
         title: title || null,
+        tags: tags || null,
         expiresAt: expiresAt ? new Date(expiresAt) : null,
         userId: authData.user.id,
       },
