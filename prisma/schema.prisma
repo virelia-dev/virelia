@@ -86,6 +86,8 @@ model Url {
   userId      String
   isActive    Boolean   @default(true)
   expiresAt   DateTime?
+  password    String?
+  clickLimit  Int?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   tags        String?

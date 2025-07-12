@@ -46,7 +46,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { originalUrl, title, tags, domainId, expiresAt } = body;
+    const {
+      originalUrl,
+      title,
+      tags,
+      domainId,
+      expiresAt,
+      password,
+      clickLimit,
+    } = body;
 
     if (!originalUrl) {
       return NextResponse.json(
@@ -76,6 +84,8 @@ export async function POST(request: NextRequest) {
         tags: tags || null,
         domainId: domainId || null,
         expiresAt: expiresAt ? new Date(expiresAt) : null,
+        password: password || null,
+        clickLimit: clickLimit ? parseInt(clickLimit) : null,
         userId: authData.user.id,
       },
     });

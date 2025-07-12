@@ -27,6 +27,7 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
   const [tags, setTags] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [password, setPassword] = useState("");
+  const [clickLimit, setClickLimit] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [createdUrl, setCreatedUrl] = useState<any>(null);
   const [copied, setCopied] = useState(false);
@@ -50,6 +51,7 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
           tags: tags || null,
           expiresAt: expiresAt || null,
           password: password || null,
+          clickLimit: clickLimit || null,
         }),
       });
 
@@ -64,6 +66,7 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
       setTags("");
       setExpiresAt("");
       setPassword("");
+      setClickLimit("");
       setShowAdvanced(false);
       setShowUTMBuilder(false);
       toast.success("Short URL created successfully!");
@@ -233,6 +236,63 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
 
                       <div className="space-y-2">
                         <label
+                          htmlFor="clickLimit"
+                          className="text-sm font-medium"
+                        >
+                          Click Limit (optional)
+                        </label>
+                        <div className="space-y-2">
+                          <div className="flex gap-2 flex-wrap">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setClickLimit("10")}
+                            >
+                              10 clicks
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setClickLimit("100")}
+                            >
+                              100 clicks
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setClickLimit("1000")}
+                            >
+                              1000 clicks
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setClickLimit("")}
+                            >
+                              Unlimited
+                            </Button>
+                          </div>
+                          <Input
+                            id="clickLimit"
+                            type="number"
+                            placeholder="Maximum number of clicks (leave empty for unlimited)"
+                            value={clickLimit}
+                            onChange={(e) => setClickLimit(e.target.value)}
+                            min="1"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Link will be automatically disabled after reaching
+                            this limit
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label
                           htmlFor="expiresAt"
                           className="text-sm font-medium"
                         >
@@ -355,6 +415,11 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
                         {password && (
                           <Badge variant="destructive">
                             Password Protected
+                          </Badge>
+                        )}
+                        {clickLimit && (
+                          <Badge variant="outline">
+                            Max {clickLimit} clicks
                           </Badge>
                         )}
                       </div>

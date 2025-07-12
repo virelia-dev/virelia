@@ -77,6 +77,13 @@ export async function GET(
     const { shortCode } = await params;
     const url = await prisma.url.findUnique({
       where: { shortCode },
+      include: {
+        _count: {
+          select: {
+            clicks: true,
+          },
+        },
+      },
     });
 
     if (!url) {
@@ -89,6 +96,20 @@ export async function GET(
 
     if (url.expiresAt && new Date() > url.expiresAt) {
       return NextResponse.json({ error: "URL has expired" }, { status: 410 });
+    }
+
+    if (url.clickLimit && url._count.clicks >= url.clickLimit) {
+      return NextResponse.json(
+        { error: "URL has reached its click limit" },
+        { status: 410 },
+      );
+    }
+
+    if (url.password) {
+      return NextResponse.redirect(
+        new URL(`/${shortCode}/password`, request.url),
+        { status: 302 },
+      );
     }
 
     const userAgent = request.headers.get("user-agent") || "";
