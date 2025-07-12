@@ -53,8 +53,8 @@ export function StatsCards({ stats, className = "" }: StatsCardsProps) {
                   <p
                     className={`text-xs font-medium flex items-center ${
                       stat.trend.isPositive
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-red-600 dark:text-red-400"
+                        ? "text-success"
+                        : "text-destructive"
                     }`}
                   >
                     <span className="mr-1">

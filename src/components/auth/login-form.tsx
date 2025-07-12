@@ -140,7 +140,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-gray-300" />
+          <span className="w-full border-t border-border" />{" "}
         </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-background px-2 text-muted-foreground">
@@ -163,7 +163,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             placeholder="your.email@example.com"
           />
         </div>
@@ -181,19 +181,19 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="mt-1 block w-full rounded-md border border-input px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             placeholder="Enter your password"
           />
         </div>
 
         {error && (
-          <div className="rounded-md bg-red-50 p-4 border border-red-200">
+          <div className="rounded-md bg-destructive/10 p-4 border border-destructive/20">
             <div className="flex">
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">
+                <h3 className="text-sm font-medium text-destructive">
                   Sign in failed
                 </h3>
-                <div className="mt-2 text-sm text-red-700">{error}</div>
+                <div className="mt-2 text-sm text-destructive">{error}</div>
               </div>
             </div>
           </div>

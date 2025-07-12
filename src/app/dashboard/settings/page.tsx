@@ -358,10 +358,7 @@ export default function SettingsPage() {
                   Your account is active
                 </p>
               </div>
-              <Badge
-                variant="secondary"
-                className="bg-green-100 text-green-800"
-              >
+              <Badge variant="secondary" className="bg-success/10 text-success">
                 Active
               </Badge>
             </div>

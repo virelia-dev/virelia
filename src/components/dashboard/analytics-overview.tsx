@@ -114,7 +114,7 @@ export function AnalyticsOverview() {
     (url) =>
       url.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       url.originalUrl.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      url.shortCode.toLowerCase().includes(searchQuery.toLowerCase())
+      url.shortCode.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const formatDate = (dateString: string) => {
@@ -146,7 +146,7 @@ export function AnalyticsOverview() {
     const monthlyAverage = analytics.clicksThisMonth / 30;
     if (monthlyAverage === 0) return 0;
     return Math.round(
-      ((weeklyAverage - monthlyAverage) / monthlyAverage) * 100
+      ((weeklyAverage - monthlyAverage) / monthlyAverage) * 100,
     );
   };
 
@@ -182,7 +182,7 @@ export function AnalyticsOverview() {
           <CardTitle>Analytics Overview</CardTitle>
           <CardDescription>
             Unable to load analytics data
-            <div className="text-sm text-red-500">{realtimeError}</div>
+            <div className="text-sm text-destructive">{realtimeError}</div>{" "}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -195,13 +195,13 @@ export function AnalyticsOverview() {
         <div className="flex items-center gap-2 text-sm">
           {analytics ? (
             <>
-              <Wifi className="h-4 w-4 text-green-500" />
-              <span className="text-green-600">Real-time data</span>
+              <Wifi className="h-4 w-4 text-success" />
+              <span className="text-success">Real-time data</span>{" "}
             </>
           ) : (
             <>
-              <WifiOff className="h-4 w-4 text-orange-500" />
-              <span className="text-orange-600">Loading...</span>
+              <WifiOff className="h-4 w-4 text-warning" />
+              <span className="text-warning">Loading...</span>{" "}
             </>
           )}
         </div>
@@ -325,7 +325,7 @@ export function AnalyticsOverview() {
             <CardTitle className="flex items-center gap-2">
               Top Performing URLs
               {analytics && (
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
               )}
             </CardTitle>
             <CardDescription>Your most clicked links</CardDescription>
@@ -442,7 +442,7 @@ export function AnalyticsOverview() {
                       <span className="text-xs text-muted-foreground">
                         {analytics.totalClicks > 0
                           ? Math.round(
-                              (stat.count / analytics.totalClicks) * 100
+                              (stat.count / analytics.totalClicks) * 100,
                             )
                           : 0}
                         %
@@ -481,7 +481,7 @@ export function AnalyticsOverview() {
                       <span className="text-xs text-muted-foreground">
                         {analytics.totalClicks > 0
                           ? Math.round(
-                              (stat.count / analytics.totalClicks) * 100
+                              (stat.count / analytics.totalClicks) * 100,
                             )
                           : 0}
                         %

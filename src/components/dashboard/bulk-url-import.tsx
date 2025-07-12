@@ -196,22 +196,23 @@ export function BulkUrlImport({
                 <div className="text-lg">{importResults.total}</div>
               </div>
               <div className="text-center">
-                <div className="font-medium text-emerald-600">Successful</div>
-                <div className="text-lg text-emerald-600">
+                <div className="font-medium text-success">Successful</div>
+                <div className="text-lg text-success">
                   {importResults.successful}
-                </div>
+                </div>{" "}
               </div>
               <div className="text-center">
-                <div className="font-medium text-red-600">Failed</div>
-                <div className="text-lg text-red-600">
+                <div className="font-medium text-destructive">Failed</div>
+                <div className="text-lg text-destructive">
                   {importResults.failed}
-                </div>
+                </div>{" "}
               </div>
             </div>
 
             {importResults.errors.length > 0 && (
               <div className="mt-4">
-                <div className="flex items-center gap-2 text-sm font-medium text-red-600 mb-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-destructive mb-2">
+                  {" "}
                   <AlertCircle className="h-4 w-4" />
                   Errors:
                 </div>
@@ -219,7 +220,8 @@ export function BulkUrlImport({
                   {importResults.errors
                     .slice(0, 10)
                     .map((error: string, index: number) => (
-                      <div key={index} className="text-red-600">
+                      <div key={index} className="text-destructive">
+                        {" "}
                         {error}
                       </div>
                     ))}

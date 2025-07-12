@@ -356,7 +356,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => deleteUrl(url.id)}
-                        className="flex items-center gap-2 text-red-600"
+                        className="flex items-center gap-2 text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />
                         Delete

@@ -40,7 +40,7 @@ export function DesktopTabs({
               className={`flex items-center gap-2 border-b-2 rounded-none px-1 py-4 text-sm font-medium transition-colors ${
                 activeTab === tab.id
                   ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-gray-300"
+                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
               }`}
             >
               <Icon className="h-4 w-4" />

@@ -57,7 +57,8 @@ export function UserMenu({ user }: UserMenuProps) {
           {isLoading ? "Signing out..." : "Sign Out"}
         </Button>
         {error && (
-          <div className="absolute top-full left-0 mt-1 bg-red-50 border border-red-200 rounded px-2 py-1 text-xs text-red-700 whitespace-nowrap z-10">
+          <div className="absolute top-full left-0 mt-1 bg-destructive/10 border border-destructive/20 rounded px-2 py-1 text-xs text-destructive whitespace-nowrap z-10">
+            {" "}
             {error}
           </div>
         )}

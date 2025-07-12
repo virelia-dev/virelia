@@ -170,8 +170,9 @@ export function UrlAnalyticsDetail({ urlId }: UrlAnalyticsDetailProps) {
   };
 
   const getChangeIcon = (change: number) => {
-    if (change > 0) return <TrendingUp className="h-4 w-4 text-green-500" />;
-    if (change < 0) return <TrendingDown className="h-4 w-4 text-red-500" />;
+    if (change > 0) return <TrendingUp className="h-4 w-4 text-success" />;
+    if (change < 0)
+      return <TrendingDown className="h-4 w-4 text-destructive" />;
     return <Activity className="h-4 w-4 text-muted-foreground" />;
   };
 
@@ -329,8 +330,8 @@ export function UrlAnalyticsDetail({ urlId }: UrlAnalyticsDetailProps) {
         </div>
 
         <div className="flex items-center gap-2 text-sm">
-          <Wifi className="h-4 w-4 text-green-500" />
-          <span className="text-green-600">Live Data</span>
+          <Wifi className="h-4 w-4 text-success" />
+          <span className="text-success">Live Data</span>{" "}
         </div>
       </div>
 
@@ -358,9 +359,9 @@ export function UrlAnalyticsDetail({ urlId }: UrlAnalyticsDetailProps) {
               <span
                 className={
                   todayChange > 0
-                    ? "text-green-600"
+                    ? "text-success"
                     : todayChange < 0
-                      ? "text-red-600"
+                      ? "text-destructive"
                       : "text-muted-foreground"
                 }
               >
@@ -398,9 +399,9 @@ export function UrlAnalyticsDetail({ urlId }: UrlAnalyticsDetailProps) {
               <span
                 className={
                   monthChange > 0
-                    ? "text-green-600"
+                    ? "text-success"
                     : monthChange < 0
-                      ? "text-red-600"
+                      ? "text-destructive"
                       : "text-muted-foreground"
                 }
               >
@@ -469,7 +470,7 @@ export function UrlAnalyticsDetail({ urlId }: UrlAnalyticsDetailProps) {
                     </div>
                     <div className="flex-1 bg-muted rounded-full h-1.5 relative">
                       <div
-                        className="bg-blue-500 rounded-full h-1.5 transition-all duration-300"
+                        className="bg-primary rounded-full h-1.5 transition-all duration-300"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>

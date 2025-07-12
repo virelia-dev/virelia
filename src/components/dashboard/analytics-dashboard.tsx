@@ -112,7 +112,7 @@ export function AnalyticsDashboard() {
           <CardTitle>Analytics</CardTitle>
           <CardDescription>
             Unable to load analytics data
-            <div className="text-sm text-red-500">{realtimeError}</div>
+            <div className="text-sm text-destructive">{realtimeError}</div>{" "}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -126,13 +126,13 @@ export function AnalyticsDashboard() {
         <div className="flex items-center gap-2 text-sm">
           {analytics ? (
             <>
-              <Wifi className="h-4 w-4 text-green-500" />
-              <span className="text-green-600">Live Data</span>
+              <Wifi className="h-4 w-4 text-success" />
+              <span className="text-success">Live Data</span>{" "}
             </>
           ) : (
             <>
-              <WifiOff className="h-4 w-4 text-orange-500" />
-              <span className="text-orange-600">Loading...</span>
+              <WifiOff className="h-4 w-4 text-warning" />
+              <span className="text-warning">Loading...</span>{" "}
             </>
           )}
         </div>
@@ -204,7 +204,7 @@ export function AnalyticsDashboard() {
             <CardTitle className="flex items-center gap-2">
               Top Performing URLs
               {analytics && (
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
               )}
             </CardTitle>
             <CardDescription>Your most clicked links</CardDescription>
