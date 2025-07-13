@@ -88,7 +88,7 @@ export default function Home() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
     >
-      <main className="flex-1 flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
+      <main className="flex-1 flex items-center justify-center">
         <motion.div
           className="text-center space-y-8 max-w-4xl mx-auto px-4"
           initial={{ scale: 0.95, opacity: 0 }}
