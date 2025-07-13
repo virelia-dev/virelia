@@ -31,6 +31,7 @@ import {
   Download,
   Eye,
   EyeOff,
+  SlidersHorizontal,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -81,6 +82,16 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
   >("all");
   const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());
   const [bulkOperationLoading, setBulkOperationLoading] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState({
+    dateRange: { start: "", end: "" },
+    clickRange: { min: "", max: "" },
+    tags: [] as string[],
+    hasPassword: null as boolean | null,
+    hasExpiry: null as boolean | null,
+    sortBy: "createdAt" as "createdAt" | "clicks" | "title",
+    sortOrder: "desc" as "asc" | "desc",
+  });
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   const fetchUrls = async () => {
     try {
@@ -224,30 +235,81 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
     }
   };
 
-  const filteredUrls = urls.filter((url) => {
-    const matchesSearch =
-      url.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      url.originalUrl.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      url.shortCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      url.tags?.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredUrls = urls
+    .filter((url) => {
+      const matchesSearch =
+        url.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        url.originalUrl.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        url.shortCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        url.tags?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    if (!matchesSearch) return false;
+      if (!matchesSearch) return false;
 
-    if (filter === "expired") {
-      return url.expiresAt && isExpired(url.expiresAt);
-    }
-    if (filter === "expiring") {
-      return (
-        url.expiresAt &&
-        isExpiringSoon(url.expiresAt) &&
-        !isExpired(url.expiresAt)
-      );
-    }
-    if (filter === "disabled") {
-      return !url.isActive;
-    }
-    return true; // what a power user
-  });
+      if (filter === "expired") {
+        return url.expiresAt && isExpired(url.expiresAt);
+      }
+      if (filter === "expiring") {
+        return (
+          url.expiresAt &&
+          isExpiringSoon(url.expiresAt) &&
+          !isExpired(url.expiresAt)
+        );
+      }
+      if (filter === "disabled") {
+        return !url.isActive;
+      }
+
+      if (advancedFilters.dateRange.start) {
+        const startDate = new Date(advancedFilters.dateRange.start);
+        const urlDate = new Date(url.createdAt);
+        if (urlDate < startDate) return false;
+      }
+      if (advancedFilters.dateRange.end) {
+        const endDate = new Date(advancedFilters.dateRange.end);
+        endDate.setHours(23, 59, 59, 999);
+        const urlDate = new Date(url.createdAt);
+        if (urlDate > endDate) return false;
+      }
+
+      const clickCount = url._count?.clicks || 0;
+      if (
+        advancedFilters.clickRange.min &&
+        clickCount < parseInt(advancedFilters.clickRange.min)
+      ) {
+        return false;
+      }
+      if (
+        advancedFilters.clickRange.max &&
+        clickCount > parseInt(advancedFilters.clickRange.max)
+      ) {
+        return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      let aValue: any, bValue: any;
+
+      switch (advancedFilters.sortBy) {
+        case "clicks":
+          aValue = a._count?.clicks || 0;
+          bValue = b._count?.clicks || 0;
+          break;
+        case "title":
+          aValue = (a.title || a.shortCode).toLowerCase();
+          bValue = (b.title || b.shortCode).toLowerCase();
+          break;
+        default:
+          aValue = new Date(a.createdAt);
+          bValue = new Date(b.createdAt);
+      }
+
+      if (advancedFilters.sortOrder === "asc") {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString(undefined, {
@@ -463,7 +525,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
         </CardDescription>
 
         {selectedUrls.size > 0 && (
-          <div className="flex items-center justify-between p-3 bg-accent/50 rounded-lg border">
+          <div className="flex items-center justify-between p-4 bg-accent/50 rounded-lg border">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">
                 {selectedUrls.size} URL(s) selected
@@ -475,6 +537,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                 variant="outline"
                 onClick={() => bulkToggleActive(true)}
                 disabled={bulkOperationLoading}
+                className="h-8"
               >
                 <Eye className="h-4 w-4 mr-1" />
                 Activate
@@ -484,6 +547,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                 variant="outline"
                 onClick={() => bulkToggleActive(false)}
                 disabled={bulkOperationLoading}
+                className="h-8"
               >
                 <EyeOff className="h-4 w-4 mr-1" />
                 Deactivate
@@ -493,6 +557,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                 variant="outline"
                 onClick={bulkExport}
                 disabled={bulkOperationLoading}
+                className="h-8"
               >
                 <Download className="h-4 w-4 mr-1" />
                 Export
@@ -502,6 +567,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                 variant="destructive"
                 onClick={bulkDelete}
                 disabled={bulkOperationLoading}
+                className="h-8"
               >
                 <Trash2 className="h-4 w-4 mr-1" />
                 Delete
@@ -511,6 +577,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                 variant="ghost"
                 onClick={clearSelection}
                 disabled={bulkOperationLoading}
+                className="h-8 w-8 p-0"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -518,21 +585,32 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
           </div>
         )}
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-6 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-6.5 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search URLs..."
+              placeholder="Search URLs by title, URL, short code, or tags..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
+              className="pl-9 h-10"
             />
           </div>
-          <div className="flex gap-1">
+
+          <Button
+            variant="outline"
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            className="h-10 px-4 mt-1.5"
+          >
+            <SlidersHorizontal className="h-4 w-4 mr-2" />
+            Filters
+          </Button>
+
+          <div className="flex gap-1 mt-1.5">
             <Button
               variant={filter === "all" ? "default" : "outline"}
               size="sm"
               onClick={() => setFilter("all")}
+              className="h-10 px-3"
             >
               All
             </Button>
@@ -540,7 +618,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
               variant={filter === "expiring" ? "default" : "outline"}
               size="sm"
               onClick={() => setFilter("expiring")}
-              className="text-xs"
+              className="h-10 px-3"
             >
               Expiring
             </Button>
@@ -548,7 +626,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
               variant={filter === "expired" ? "default" : "outline"}
               size="sm"
               onClick={() => setFilter("expired")}
-              className="text-xs"
+              className="h-10 px-3"
             >
               Expired
             </Button>
@@ -556,12 +634,139 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
               variant={filter === "disabled" ? "default" : "outline"}
               size="sm"
               onClick={() => setFilter("disabled")}
-              className="text-xs"
+              className="h-10 px-3"
             >
               Disabled
             </Button>
           </div>
         </div>
+
+        {showAdvancedFilters && (
+          <div className="border-t pt-4 space-y-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="space-y-3">
+                <label className="text-sm font-medium">Date Range</label>
+                <div className="space-y-2">
+                  <Input
+                    type="date"
+                    placeholder="Start date"
+                    value={advancedFilters.dateRange.start}
+                    onChange={(e) =>
+                      setAdvancedFilters((prev) => ({
+                        ...prev,
+                        dateRange: { ...prev.dateRange, start: e.target.value },
+                      }))
+                    }
+                    className="h-9"
+                  />
+                  <Input
+                    type="date"
+                    placeholder="End date"
+                    value={advancedFilters.dateRange.end}
+                    onChange={(e) =>
+                      setAdvancedFilters((prev) => ({
+                        ...prev,
+                        dateRange: { ...prev.dateRange, end: e.target.value },
+                      }))
+                    }
+                    className="h-9"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-medium">Click Count Range</label>
+                <div className="space-y-2">
+                  <Input
+                    type="number"
+                    placeholder="Min clicks"
+                    value={advancedFilters.clickRange.min}
+                    onChange={(e) =>
+                      setAdvancedFilters((prev) => ({
+                        ...prev,
+                        clickRange: { ...prev.clickRange, min: e.target.value },
+                      }))
+                    }
+                    className="h-9"
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Max clicks"
+                    value={advancedFilters.clickRange.max}
+                    onChange={(e) =>
+                      setAdvancedFilters((prev) => ({
+                        ...prev,
+                        clickRange: { ...prev.clickRange, max: e.target.value },
+                      }))
+                    }
+                    className="h-9"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-sm font-medium">Sort Options</label>
+                <div className="space-y-2 mt-1.5">
+                  <div className="flex gap-1">
+                    <Button
+                      variant={
+                        advancedFilters.sortBy === "createdAt"
+                          ? "default"
+                          : "outline"
+                      }
+                      size="sm"
+                      className="flex-1 h-9"
+                      onClick={() =>
+                        setAdvancedFilters((prev) => ({
+                          ...prev,
+                          sortBy: "createdAt",
+                        }))
+                      }
+                    >
+                      Date
+                    </Button>
+                    <Button
+                      variant={
+                        advancedFilters.sortBy === "clicks"
+                          ? "default"
+                          : "outline"
+                      }
+                      size="sm"
+                      className="flex-1 h-9"
+                      onClick={() =>
+                        setAdvancedFilters((prev) => ({
+                          ...prev,
+                          sortBy: "clicks",
+                        }))
+                      }
+                    >
+                      Clicks
+                    </Button>
+                  </div>
+                  <Button
+                    variant={
+                      advancedFilters.sortOrder === "desc"
+                        ? "default"
+                        : "outline"
+                    }
+                    size="sm"
+                    className="w-full h-9"
+                    onClick={() =>
+                      setAdvancedFilters((prev) => ({
+                        ...prev,
+                        sortOrder: prev.sortOrder === "desc" ? "asc" : "desc",
+                      }))
+                    }
+                  >
+                    {advancedFilters.sortOrder === "desc"
+                      ? "Newest First"
+                      : "Oldest First"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         {filteredUrls.length === 0 ? (
