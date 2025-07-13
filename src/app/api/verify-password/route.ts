@@ -39,8 +39,15 @@ export async function POST(request: NextRequest) {
     }
 
     if (url.clickLimit && url._count.clicks >= url.clickLimit) {
+      await prisma.url.update({
+        where: { id: url.id },
+        data: { isActive: false },
+      });
+
       return NextResponse.json(
-        { error: "URL has reached its click limit" },
+        {
+          error: "URL has reached its click limit",
+        },
         { status: 410 },
       );
     }

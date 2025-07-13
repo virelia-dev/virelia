@@ -24,6 +24,8 @@ import {
   Link as LinkIcon,
   QrCode,
   X,
+  Lock,
+  Ban,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -44,6 +46,8 @@ interface Url {
   tags?: string;
   isActive: boolean;
   expiresAt?: string;
+  password?: string;
+  clickLimit?: number;
   createdAt: string;
   domain?: {
     id: string;
@@ -67,7 +71,9 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [editingUrl, setEditingUrl] = useState<Url | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [filter, setFilter] = useState<"all" | "expired" | "expiring">("all");
+  const [filter, setFilter] = useState<
+    "all" | "expired" | "expiring" | "disabled"
+  >("all");
 
   const fetchUrls = async () => {
     try {
@@ -230,7 +236,10 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
         !isExpired(url.expiresAt)
       );
     }
-    return true; // "all"
+    if (filter === "disabled") {
+      return !url.isActive;
+    }
+    return true; // what a power user
   });
 
   const formatDate = (dateString: string) => {
@@ -262,6 +271,14 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
     if (isExpired(expiresAt)) return "Expired";
     if (isExpiringSoon(expiresAt)) return "Expires soon";
     return `Expires ${formatDate(expiresAt)}`;
+  };
+
+  const isClickLimitReached = (url: Url) => {
+    return url.clickLimit && (url._count?.clicks || 0) >= url.clickLimit;
+  };
+
+  const isDisabledDueToClickLimit = (url: Url) => {
+    return !url.isActive && isClickLimitReached(url);
   };
 
   if (isLoading) {
@@ -329,6 +346,14 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
             >
               Expired
             </Button>
+            <Button
+              variant={filter === "disabled" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilter("disabled")}
+              className="text-xs"
+            >
+              Disabled
+            </Button>
           </div>
         </div>
       </CardHeader>
@@ -357,7 +382,9 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                     ? "border-destructive/50 bg-destructive/5"
                     : url.expiresAt && isExpiringSoon(url.expiresAt)
                       ? "border-secondary/50 bg-secondary/5"
-                      : ""
+                      : isDisabledDueToClickLimit(url)
+                        ? "border-destructive/30 bg-destructive/5 opacity-75"
+                        : ""
                 }`}
               >
                 <div className="flex items-start justify-between gap-4">
@@ -459,7 +486,11 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                         onClick={() => toggleActiveStatus(url.id, url.isActive)}
                         className="flex items-center gap-2"
                       >
-                        {url.isActive ? "Deactivate" : "Activate"}
+                        {url.isActive
+                          ? "Deactivate"
+                          : isDisabledDueToClickLimit(url)
+                            ? "Reactivate (Reset Click Limit)"
+                            : "Activate"}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => deleteUrl(url.id)}
@@ -474,16 +505,31 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Badge variant={url.isActive ? "default" : "secondary"}>
-                      {url.isActive ? "Active" : "Inactive"}
+                    <Badge variant={url.isActive ? "default" : "destructive"}>
+                      {url.isActive
+                        ? "Active"
+                        : isDisabledDueToClickLimit(url)
+                          ? "Disabled (Click Limit)"
+                          : "Inactive"}
                     </Badge>
                     <Badge
                       variant="outline"
                       className="flex items-center gap-1"
                     >
                       <BarChart3 className="h-3 w-3" />
-                      {url._count?.clicks || 0} clicks
+                      {url._count?.clicks || 0}
+                      {url.clickLimit ? ` / ${url.clickLimit}` : ""} clicks
                     </Badge>
+                    {url.password && (
+                      <Badge variant="secondary" className="text-xs">
+                        <Lock className="h-3 w-3" />
+                      </Badge>
+                    )}
+                    {url.clickLimit && isClickLimitReached(url) && (
+                      <Badge variant="destructive" className="text-xs">
+                        <Ban className="h-3 w-3" />
+                      </Badge>
+                    )}
                     {url.expiresAt && (
                       <Badge
                         variant={getExpiryBadgeVariant(url.expiresAt)}
