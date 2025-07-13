@@ -112,10 +112,10 @@ export async function GET(
     }
 
     if (url.password) {
-      return NextResponse.redirect(
-        new URL(`/${shortCode}/password`, request.url),
-        { status: 302 },
-      );
+      const baseUrl = process.env.NEXT_PUBLIC_BETTER_AUTH_URL || request.url;
+      return NextResponse.redirect(new URL(`/${shortCode}/password`, baseUrl), {
+        status: 302,
+      });
     }
 
     const userAgent = request.headers.get("user-agent") || "";
