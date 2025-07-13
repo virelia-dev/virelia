@@ -26,6 +26,11 @@ import {
   X,
   Lock,
   Ban,
+  CheckSquare,
+  Square,
+  Download,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -74,6 +79,8 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
   const [filter, setFilter] = useState<
     "all" | "expired" | "expiring" | "disabled"
   >("all");
+  const [selectedUrls, setSelectedUrls] = useState<Set<string>>(new Set());
+  const [bulkOperationLoading, setBulkOperationLoading] = useState(false);
 
   const fetchUrls = async () => {
     try {
@@ -281,6 +288,148 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
     return !url.isActive && isClickLimitReached(url);
   };
 
+  const toggleUrlSelection = (urlId: string) => {
+    const newSelected = new Set(selectedUrls);
+    if (newSelected.has(urlId)) {
+      newSelected.delete(urlId);
+    } else {
+      newSelected.add(urlId);
+    }
+    setSelectedUrls(newSelected);
+  };
+
+  const selectAllUrls = () => {
+    const newSelected = new Set(filteredUrls.map((url) => url.id));
+    setSelectedUrls(newSelected);
+  };
+
+  const clearSelection = () => {
+    setSelectedUrls(new Set());
+  };
+
+  const isAllSelected =
+    filteredUrls.length > 0 && selectedUrls.size === filteredUrls.length;
+  const isPartiallySelected =
+    selectedUrls.size > 0 && selectedUrls.size < filteredUrls.length;
+
+  const bulkDelete = async () => {
+    if (selectedUrls.size === 0) return;
+
+    if (
+      !confirm(`Are you sure you want to delete ${selectedUrls.size} URL(s)?`)
+    )
+      return;
+
+    setBulkOperationLoading(true);
+    try {
+      const promises = Array.from(selectedUrls).map((urlId) =>
+        fetch(`/api/urls/${urlId}`, { method: "DELETE" }),
+      );
+
+      const results = await Promise.allSettled(promises);
+      const failed = results.filter(
+        (result) => result.status === "rejected",
+      ).length;
+
+      if (failed === 0) {
+        toast.success(`${selectedUrls.size} URL(s) deleted successfully!`);
+      } else {
+        toast.error(`Failed to delete ${failed} URL(s)`);
+      }
+
+      await fetchUrls();
+      clearSelection();
+    } catch (error) {
+      console.error("Error deleting URLs:", error);
+      toast.error("Failed to delete URLs. Please try again.");
+    } finally {
+      setBulkOperationLoading(false);
+    }
+  };
+
+  const bulkToggleActive = async (activate: boolean) => {
+    if (selectedUrls.size === 0) return;
+
+    setBulkOperationLoading(true);
+    try {
+      const promises = Array.from(selectedUrls).map((urlId) =>
+        fetch(`/api/urls/${urlId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ isActive: activate }),
+        }),
+      );
+
+      const results = await Promise.allSettled(promises);
+      const failed = results.filter(
+        (result) => result.status === "rejected",
+      ).length;
+
+      if (failed === 0) {
+        toast.success(
+          `${selectedUrls.size} URL(s) ${activate ? "activated" : "deactivated"} successfully!`,
+        );
+      } else {
+        toast.error(
+          `Failed to ${activate ? "activate" : "deactivate"} ${failed} URL(s)`,
+        );
+      }
+
+      await fetchUrls();
+      clearSelection();
+    } catch (error) {
+      console.error("Error updating URLs:", error);
+      toast.error("Failed to update URLs. Please try again.");
+    } finally {
+      setBulkOperationLoading(false);
+    }
+  };
+
+  const bulkExport = () => {
+    if (selectedUrls.size === 0) return;
+
+    const selectedUrlData = urls.filter((url) => selectedUrls.has(url.id));
+    const csvContent = [
+      [
+        "Short Code",
+        "Original URL",
+        "Title",
+        "Tags",
+        "Active",
+        "Clicks",
+        "Created At",
+        "Expires At",
+      ].join(","),
+      ...selectedUrlData.map((url) =>
+        [
+          url.shortCode,
+          `"${url.originalUrl}"`,
+          `"${url.title || ""}"`,
+          `"${url.tags || ""}"`,
+          url.isActive ? "Yes" : "No",
+          url._count?.clicks || 0,
+          new Date(url.createdAt).toISOString(),
+          url.expiresAt ? new Date(url.expiresAt).toISOString() : "",
+        ].join(","),
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `urls-export-${new Date().toISOString().split("T")[0]}.csv`,
+    );
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success(`Exported ${selectedUrls.size} URL(s) to CSV`);
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -312,9 +461,66 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
         <CardDescription>
           Manage and monitor your shortened URLs
         </CardDescription>
+
+        {selectedUrls.size > 0 && (
+          <div className="flex items-center justify-between p-3 bg-accent/50 rounded-lg border">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">
+                {selectedUrls.size} URL(s) selected
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => bulkToggleActive(true)}
+                disabled={bulkOperationLoading}
+              >
+                <Eye className="h-4 w-4 mr-1" />
+                Activate
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => bulkToggleActive(false)}
+                disabled={bulkOperationLoading}
+              >
+                <EyeOff className="h-4 w-4 mr-1" />
+                Deactivate
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={bulkExport}
+                disabled={bulkOperationLoading}
+              >
+                <Download className="h-4 w-4 mr-1" />
+                Export
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={bulkDelete}
+                disabled={bulkOperationLoading}
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                Delete
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={clearSelection}
+                disabled={bulkOperationLoading}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-6 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search URLs..."
               value={searchQuery}
@@ -374,10 +580,36 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
           </div>
         ) : (
           <div className="space-y-4">
+            {filteredUrls.length > 0 && (
+              <div className="flex items-center gap-3 p-3 border-b">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={isAllSelected ? clearSelection : selectAllUrls}
+                  className="h-6 w-6 p-0"
+                >
+                  {isAllSelected ? (
+                    <CheckSquare className="h-4 w-4" />
+                  ) : isPartiallySelected ? (
+                    <CheckSquare className="h-4 w-4 opacity-50" />
+                  ) : (
+                    <Square className="h-4 w-4" />
+                  )}
+                </Button>
+                <span className="text-sm font-medium">
+                  {isAllSelected ? "Deselect All" : "Select All"}
+                </span>
+              </div>
+            )}
+
             {filteredUrls.map((url) => (
               <div
                 key={url.id}
                 className={`border rounded-lg p-4 space-y-3 hover:bg-accent/50 transition-colors ${
+                  selectedUrls.has(url.id)
+                    ? "ring-2 ring-primary/20 bg-accent/30"
+                    : ""
+                } ${
                   url.expiresAt && isExpired(url.expiresAt)
                     ? "border-destructive/50 bg-destructive/5"
                     : url.expiresAt && isExpiringSoon(url.expiresAt)
@@ -388,71 +620,86 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                 }`}
               >
                 <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-mono text-sm bg-popover px-2 py-1 rounded border">
-                        {url.domain?.domain
-                          ? `${url.domain.domain}`
-                          : process.env.NEXT_PUBLIC_BETTER_AUTH_URL?.replace(
-                              "https://",
-                              "",
-                            )}
-                        /{url.shortCode}
-                      </span>{" "}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() =>
-                          copyToClipboard(url.shortCode, url.id, url.domain)
-                        }
-                        className="h-6 w-6 p-0"
-                      >
-                        {copiedId === url.id ? (
-                          <Check className="h-3 w-3" />
-                        ) : (
-                          <Copy className="h-3 w-3" />
-                        )}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        asChild
-                        className="h-6 w-6 p-0"
-                      >
-                        <a
-                          href={url.originalUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                  <div className="flex items-start gap-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleUrlSelection(url.id)}
+                      className="h-6 w-6 p-0 mt-1"
+                    >
+                      {selectedUrls.has(url.id) ? (
+                        <CheckSquare className="h-4 w-4" />
+                      ) : (
+                        <Square className="h-4 w-4" />
+                      )}
+                    </Button>
+
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-mono text-sm bg-popover px-2 py-1 rounded border">
+                          {url.domain?.domain
+                            ? `${url.domain.domain}`
+                            : process.env.NEXT_PUBLIC_BETTER_AUTH_URL?.replace(
+                                "https://",
+                                "",
+                              )}
+                          /{url.shortCode}
+                        </span>{" "}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() =>
+                            copyToClipboard(url.shortCode, url.id, url.domain)
+                          }
+                          className="h-6 w-6 p-0"
                         >
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </Button>
-                    </div>
-
-                    {url.title && (
-                      <h3 className="font-medium text-sm">{url.title}</h3>
-                    )}
-
-                    {url.tags && (
-                      <div className="flex gap-1 flex-wrap">
-                        {url.tags
-                          .split(",")
-                          .filter((tag) => tag.trim())
-                          .map((tag, index) => (
-                            <Badge
-                              key={index}
-                              variant="secondary"
-                              className="text-xs"
-                            >
-                              {tag.trim()}
-                            </Badge>
-                          ))}
+                          {copiedId === url.id ? (
+                            <Check className="h-3 w-3" />
+                          ) : (
+                            <Copy className="h-3 w-3" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          asChild
+                          className="h-6 w-6 p-0"
+                        >
+                          <a
+                            href={url.originalUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </Button>
                       </div>
-                    )}
 
-                    <p className="text-sm text-muted-foreground break-all">
-                      {url.originalUrl}
-                    </p>
+                      {url.title && (
+                        <h3 className="font-medium text-sm">{url.title}</h3>
+                      )}
+
+                      {url.tags && (
+                        <div className="flex gap-1 flex-wrap">
+                          {url.tags
+                            .split(",")
+                            .filter((tag) => tag.trim())
+                            .map((tag, index) => (
+                              <Badge
+                                key={index}
+                                variant="secondary"
+                                className="text-xs"
+                              >
+                                {tag.trim()}
+                              </Badge>
+                            ))}
+                        </div>
+                      )}
+
+                      <p className="text-sm text-muted-foreground break-all">
+                        {url.originalUrl}
+                      </p>
+                    </div>
                   </div>
 
                   <DropdownMenu>
