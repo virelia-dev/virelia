@@ -50,7 +50,6 @@ function parseUserAgent(userAgent: string) {
   return { device, browser, os };
 }
 
-// i PROMISE ill do this at some point... maybe
 async function getCountryFromIP(ip: string): Promise<string | null> {
   try {
     if (
