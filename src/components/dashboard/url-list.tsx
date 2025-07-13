@@ -97,7 +97,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
   const copyToClipboard = async (
     shortCode: string,
     id: string,
-    domain?: { domain: string },
+    domain?: { domain: string }
   ) => {
     try {
       const baseUrl = domain?.domain
@@ -128,7 +128,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
       if (response.ok) {
         fetchUrls();
         toast.success(
-          `URL ${!currentStatus ? "activated" : "deactivated"} successfully!`,
+          `URL ${!currentStatus ? "activated" : "deactivated"} successfully!`
         );
       } else {
         toast.error("Failed to update URL status");
@@ -395,7 +395,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                           ? `${url.domain.domain}`
                           : process.env.NEXT_PUBLIC_BETTER_AUTH_URL?.replace(
                               "https://",
-                              "",
+                              ""
                             )}
                         /{url.shortCode}
                       </span>{" "}
@@ -518,7 +518,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                     >
                       <BarChart3 className="h-3 w-3" />
                       {url._count?.clicks || 0}
-                      {url.clickLimit ? ` / ${url.clickLimit}` : ""} clicks
+                      {url.clickLimit ? ` / ${url.clickLimit}` : ""}
                     </Badge>
                     {url.password && (
                       <Badge variant="secondary" className="text-xs">
@@ -661,7 +661,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                         const date = new Date();
                         date.setHours(date.getHours() + 24);
                         const input = document.querySelector(
-                          'input[name="expiresAt"]',
+                          'input[name="expiresAt"]'
                         ) as HTMLInputElement;
                         if (input)
                           input.value = date.toISOString().slice(0, 16);
@@ -678,7 +678,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                         const date = new Date();
                         date.setDate(date.getDate() + 7);
                         const input = document.querySelector(
-                          'input[name="expiresAt"]',
+                          'input[name="expiresAt"]'
                         ) as HTMLInputElement;
                         if (input)
                           input.value = date.toISOString().slice(0, 16);
@@ -695,7 +695,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                         const date = new Date();
                         date.setMonth(date.getMonth() + 1);
                         const input = document.querySelector(
-                          'input[name="expiresAt"]',
+                          'input[name="expiresAt"]'
                         ) as HTMLInputElement;
                         if (input)
                           input.value = date.toISOString().slice(0, 16);
@@ -710,7 +710,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
                       size="sm"
                       onClick={() => {
                         const input = document.querySelector(
-                          'input[name="expiresAt"]',
+                          'input[name="expiresAt"]'
                         ) as HTMLInputElement;
                         if (input) input.value = "";
                       }}

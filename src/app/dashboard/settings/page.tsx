@@ -24,9 +24,11 @@ import {
   Save,
   Eye,
   EyeOff,
+  Palette,
 } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { toast } from "sonner";
+import { ThemeToggle } from "~/components/theme-toggle";
 
 export default function SettingsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -342,6 +344,31 @@ export default function SettingsPage() {
                 {isSavingPassword ? "Updating..." : "Update Password"}
               </Button>
             </form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Palette className="h-5 w-5" />
+              Preferences
+            </CardTitle>
+            <CardDescription>
+              Customize your app experience and appearance
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">Theme</p>
+                  <p className="text-sm text-muted-foreground">
+                    Choose your preferred theme or use system setting
+                  </p>
+                </div>
+                <ThemeToggle />
+              </div>
+            </div>
           </CardContent>
         </Card>
 

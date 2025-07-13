@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Navbar from "~/components/navbar";
 import { Toaster } from "~/components/ui/sonner";
+import { ThemeProvider } from "~/components/theme-provider";
 import favicon from "~/assets/favicon.svg";
 import "./globals.css";
 
@@ -34,15 +35,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${inter.variable} dark`}
-    >
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
       <body>
-        <Navbar />
-        <main className="min-h-screen">{children}</main>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Navbar />
+          <main className="min-h-screen">{children}</main>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
