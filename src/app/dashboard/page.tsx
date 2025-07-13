@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { authClient } from "~/lib/auth-client";
 import { User } from "better-auth/types";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -21,10 +22,13 @@ import { toast } from "sonner";
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("overview");
   const [refreshUrlList, setRefreshUrlList] = useState(0);
   const [analytics, setAnalytics] = useState<any>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const activeTab = searchParams.get("tab") || "overview";
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -74,7 +78,7 @@ export default function DashboardPage() {
 
   const handleUrlCreated = () => {
     setRefreshUrlList((prev) => prev + 1);
-    setActiveTab("manage");
+    router.push("/dashboard?tab=manage");
   };
 
   const handleBulkImportComplete = () => {
@@ -82,7 +86,13 @@ export default function DashboardPage() {
   };
 
   const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
+    const url = new URL(window.location.href);
+    if (tab === "overview") {
+      url.searchParams.delete("tab");
+    } else {
+      url.searchParams.set("tab", tab);
+    }
+    router.push(url.pathname + url.search);
   };
 
   const overviewStats = [

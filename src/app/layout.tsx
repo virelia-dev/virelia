@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import Navbar from "~/components/navbar";
 import { Toaster } from "~/components/ui/sonner";
 import { ThemeProvider } from "~/components/theme-provider";
+import { KeyboardShortcutsProvider } from "~/components/keyboard-shortcuts-provider";
 import favicon from "~/assets/favicon.svg";
 import "./globals.css";
 
@@ -43,9 +44,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
-          <main className="min-h-screen">{children}</main>
-          <Toaster />
+          <KeyboardShortcutsProvider>
+            <Navbar />
+            <main className="min-h-screen">{children}</main>
+            <Toaster />
+          </KeyboardShortcutsProvider>
         </ThemeProvider>
       </body>
     </html>
