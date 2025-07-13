@@ -50,33 +50,58 @@ export function UTMBuilder({
   };
 
   const generateUrl = () => {
-    const url = new URL(baseUrl);
+    try {
+      const url = new URL(baseUrl);
 
-    if (utmSource) url.searchParams.set("utm_source", utmSource);
-    if (utmMedium) url.searchParams.set("utm_medium", utmMedium);
-    if (utmCampaign) url.searchParams.set("utm_campaign", utmCampaign);
-    if (utmTerm) url.searchParams.set("utm_term", utmTerm);
-    if (utmContent) url.searchParams.set("utm_content", utmContent);
+      if (utmSource) url.searchParams.set("utm_source", utmSource);
+      if (utmMedium) url.searchParams.set("utm_medium", utmMedium);
+      if (utmCampaign) url.searchParams.set("utm_campaign", utmCampaign);
+      if (utmTerm) url.searchParams.set("utm_term", utmTerm);
+      if (utmContent) url.searchParams.set("utm_content", utmContent);
 
-    customParams.forEach((param) => {
-      if (param.key && param.value) {
-        url.searchParams.set(param.key, param.value);
-      }
-    });
+      customParams.forEach((param) => {
+        if (param.key && param.value) {
+          url.searchParams.set(param.key, param.value);
+        }
+      });
 
-    return url.toString();
+      return url.toString();
+    } catch {
+      return baseUrl;
+    }
   };
 
   const finalUrl = generateUrl();
 
+  const isValidUrl = (() => {
+    try {
+      new URL(baseUrl);
+      return true;
+    } catch {
+      return false;
+    }
+  })();
+
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(finalUrl);
-    toast.success("URL copied to clipboard");
+    try {
+      new URL(baseUrl);
+      navigator.clipboard.writeText(finalUrl);
+      toast.success("URL copied to clipboard");
+    } catch {
+      toast.error("Cannot copy - please enter a valid URL first");
+    }
   };
 
   const applyUrl = () => {
-    onUrlUpdateAction(finalUrl);
-    toast.success("URL updated with UTM parameters");
+    try {
+      new URL(baseUrl);
+      onUrlUpdateAction(finalUrl);
+      toast.success("URL updated with UTM parameters");
+    } catch {
+      toast.error(
+        "Cannot apply UTM parameters - please enter a valid URL first",
+      );
+    }
   };
 
   const clearAllParams = () => {
@@ -190,14 +215,24 @@ export function UTMBuilder({
 
         <div className="space-y-2">
           <label className="text-sm font-medium">Generated URL</label>
+          {!isValidUrl && (
+            <p className="text-sm text-destructive mb-2">
+              Please enter a valid URL to use the UTM builder
+            </p>
+          )}
           <div className="relative">
-            <Input value={finalUrl} readOnly className="pr-20 text-xs" />
+            <Input
+              value={finalUrl}
+              readOnly
+              className={`pr-20 text-xs ${!isValidUrl ? "bg-muted text-muted-foreground" : ""}`}
+            />
             <div className="absolute right-1 top-1 flex gap-1">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={copyToClipboard}
                 className="h-6 w-6 p-0"
+                disabled={!isValidUrl}
               >
                 <Copy className="h-3 w-3" />
               </Button>
@@ -205,7 +240,7 @@ export function UTMBuilder({
           </div>
         </div>
 
-        <Button onClick={applyUrl} className="w-full">
+        <Button onClick={applyUrl} className="w-full" disabled={!isValidUrl}>
           Apply UTM Parameters
         </Button>
       </CardContent>

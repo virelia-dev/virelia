@@ -5,6 +5,7 @@ import { BarChart3, Settings, Home } from "lucide-react";
 import { Toaster } from "~/components/ui/sonner";
 import { motion } from "motion/react";
 import { usePathname } from "next/navigation";
+import ErrorBoundary from "~/components/error-boundary";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
@@ -89,7 +90,7 @@ export default function DashboardLayout({
             transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             key={pathname}
           >
-            {children}
+            <ErrorBoundary>{children}</ErrorBoundary>
           </motion.div>
           <Toaster />
         </main>

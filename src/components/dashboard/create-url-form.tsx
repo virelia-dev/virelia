@@ -34,9 +34,47 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showUTMBuilder, setShowUTMBuilder] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
+  const [urlError, setUrlError] = useState("");
+
+  const validateUrl = (url: string): boolean => {
+    if (!url.trim()) {
+      setUrlError("URL is required");
+      return false;
+    }
+
+    try {
+      new URL(url);
+      setUrlError("");
+      return true;
+    } catch {
+      setUrlError("Please enter a valid URL (including http:// or https://)");
+      return false;
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateUrl(originalUrl)) {
+      return;
+    }
+
+    if (
+      clickLimit &&
+      (isNaN(parseInt(clickLimit)) || parseInt(clickLimit) < 1)
+    ) {
+      toast.error("Click limit must be a positive number");
+      return;
+    }
+
+    if (expiresAt) {
+      const expiryDate = new Date(expiresAt);
+      if (isNaN(expiryDate.getTime()) || expiryDate <= new Date()) {
+        toast.error("Expiry date must be a valid future date");
+        return;
+      }
+    }
+
     setIsLoading(true);
 
     try {
@@ -55,11 +93,13 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
         }),
       });
 
+      const responseData = await response.json();
+
       if (!response.ok) {
-        throw new Error("Failed to create URL");
+        throw new Error(responseData.error || "Failed to create URL");
       }
 
-      const newUrl = await response.json();
+      const newUrl = responseData;
       setCreatedUrl(newUrl);
       setOriginalUrl("");
       setTitle("");
@@ -69,13 +109,16 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
       setClickLimit("");
       setShowAdvanced(false);
       setShowUTMBuilder(false);
+      setUrlError("");
       toast.success("Short URL created successfully!");
       onUrlCreated?.(newUrl);
     } catch (error) {
       console.error("Error creating URL:", error);
-      toast.error(
-        "Failed to create short URL. Please check the URL and try again.",
-      );
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to create short URL. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -84,15 +127,37 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
   const copyToClipboard = async () => {
     if (createdUrl) {
       try {
-        await navigator.clipboard.writeText(
-          `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/${createdUrl.shortCode}`,
-        );
+        const url = `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/${createdUrl.shortCode}`;
+
+        if (!navigator.clipboard) {
+          throw new Error("Clipboard not supported in this browser");
+        }
+
+        await navigator.clipboard.writeText(url);
         setCopied(true);
         toast.success("URL copied to clipboard!");
         setTimeout(() => setCopied(false), 2000);
       } catch (error) {
-        toast.error("Failed to copy URL to clipboard");
         console.error("Copy to clipboard failed:", error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to copy URL to clipboard";
+        toast.error(errorMessage);
+
+        try {
+          const textArea = document.createElement("textarea");
+          textArea.value = `${process.env.NEXT_PUBLIC_BETTER_AUTH_URL}/${createdUrl.shortCode}`;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textArea);
+          toast.success("URL copied to clipboard!");
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } catch (fallbackError) {
+          console.error("Fallback copy failed:", fallbackError);
+        }
       }
     }
   };
@@ -105,6 +170,9 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
 
   const handleUtmUpdate = (newUrl: string) => {
     setOriginalUrl(newUrl);
+    if (urlError) {
+      validateUrl(newUrl);
+    }
   };
 
   const shortUrl = createdUrl
@@ -158,10 +226,21 @@ export function CreateUrlForm({ onUrlCreated }: CreateUrlFormProps) {
                       type="url"
                       placeholder="https://example.com/very-long-url"
                       value={originalUrl}
-                      onChange={(e) => setOriginalUrl(e.target.value)}
+                      onChange={(e) => {
+                        setOriginalUrl(e.target.value);
+                        if (urlError) {
+                          validateUrl(e.target.value);
+                        }
+                      }}
+                      onBlur={(e) => validateUrl(e.target.value)}
                       required
-                      className="text-sm"
+                      className={`text-sm ${urlError ? "border-destructive" : ""}`}
                     />
+                    {urlError && (
+                      <p className="text-sm text-destructive mt-1">
+                        {urlError}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex gap-2">

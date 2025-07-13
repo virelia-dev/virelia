@@ -39,13 +39,23 @@ export function useUrls(refreshTrigger?: number) {
   const fetchUrls = useCallback(async () => {
     try {
       const response = await fetch("/api/urls");
-      if (response.ok) {
-        const data = await response.json();
-        setUrls(data);
+      if (!response.ok) {
+        const errorData = await response
+          .json()
+          .catch(() => ({ error: "Unknown error" }));
+        throw new Error(
+          errorData.error || `HTTP ${response.status}: ${response.statusText}`,
+        );
       }
+      const data = await response.json();
+      setUrls(data);
     } catch (error) {
       console.error("Error fetching URLs:", error);
-      toast.error("Failed to load URLs. Please try again later.");
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to load URLs. Please try again later.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -210,13 +220,39 @@ export function useUrlActions(refetch: () => void) {
         const baseUrl = domain?.domain
           ? `https://${domain.domain}`
           : process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
+
+        if (!navigator.clipboard) {
+          throw new Error("Clipboard not supported in this browser");
+        }
+
         await navigator.clipboard.writeText(`${baseUrl}/${shortCode}`);
         setCopiedId(id);
         toast.success("URL copied to clipboard!");
         setTimeout(() => setCopiedId(null), 2000);
       } catch (error) {
-        toast.error("Failed to copy URL to clipboard");
         console.error("Copy to clipboard failed:", error);
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to copy URL to clipboard";
+        toast.error(errorMessage);
+
+        try {
+          const textArea = document.createElement("textarea");
+          const baseUrl = domain?.domain
+            ? `https://${domain.domain}`
+            : process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
+          textArea.value = `${baseUrl}/${shortCode}`;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textArea);
+          toast.success("URL copied to clipboard!");
+          setCopiedId(id);
+          setTimeout(() => setCopiedId(null), 2000);
+        } catch (fallbackError) {
+          console.error("Fallback copy failed:", fallbackError);
+        }
       }
     },
     [],
@@ -235,17 +271,27 @@ export function useUrlActions(refetch: () => void) {
           }),
         });
 
-        if (response.ok) {
-          refetch();
-          toast.success(
-            `URL ${!currentStatus ? "activated" : "deactivated"} successfully!`,
+        if (!response.ok) {
+          const errorData = await response
+            .json()
+            .catch(() => ({ error: "Unknown error" }));
+          throw new Error(
+            errorData.error ||
+              `Failed to update URL status (HTTP ${response.status})`,
           );
-        } else {
-          toast.error("Failed to update URL status");
         }
+
+        refetch();
+        toast.success(
+          `URL ${!currentStatus ? "activated" : "deactivated"} successfully!`,
+        );
       } catch (error) {
         console.error("Error updating URL:", error);
-        toast.error("Failed to update URL. Please try again.");
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to update URL. Please try again.";
+        toast.error(errorMessage);
       }
     },
     [refetch],
@@ -260,15 +306,24 @@ export function useUrlActions(refetch: () => void) {
           method: "DELETE",
         });
 
-        if (response.ok) {
-          refetch();
-          toast.success("URL deleted successfully!");
-        } else {
-          toast.error("Failed to delete URL");
+        if (!response.ok) {
+          const errorData = await response
+            .json()
+            .catch(() => ({ error: "Unknown error" }));
+          throw new Error(
+            errorData.error || `Failed to delete URL (HTTP ${response.status})`,
+          );
         }
+
+        refetch();
+        toast.success("URL deleted successfully!");
       } catch (error) {
         console.error("Error deleting URL:", error);
-        toast.error("Failed to delete URL. Please try again.");
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Failed to delete URL. Please try again.";
+        toast.error(errorMessage);
       }
     },
     [refetch],

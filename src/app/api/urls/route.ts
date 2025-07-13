@@ -63,6 +63,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    try {
+      new URL(originalUrl);
+    } catch {
+      return NextResponse.json(
+        { error: "Please provide a valid URL (including http:// or https://)" },
+        { status: 400 },
+      );
+    }
+
+    if (
+      clickLimit &&
+      (isNaN(parseInt(clickLimit)) || parseInt(clickLimit) < 1)
+    ) {
+      return NextResponse.json(
+        { error: "Click limit must be a positive number" },
+        { status: 400 },
+      );
+    }
+
+    if (expiresAt) {
+      const expiryDate = new Date(expiresAt);
+      if (isNaN(expiryDate.getTime()) || expiryDate <= new Date()) {
+        return NextResponse.json(
+          { error: "Expiry date must be a valid future date" },
+          { status: 400 },
+        );
+      }
+    }
+
     let shortCode = Math.random().toString(36).substring(2, 8);
     let attempts = 0;
     while (attempts < 5) {
@@ -74,6 +103,13 @@ export async function POST(request: NextRequest) {
 
       shortCode = Math.random().toString(36).substring(2, 8);
       attempts++;
+    }
+
+    if (attempts >= 5) {
+      return NextResponse.json(
+        { error: "Unable to generate unique short code. Please try again." },
+        { status: 500 },
+      );
     }
 
     const url = await prisma.url.create({
