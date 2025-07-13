@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { CommandPalette } from "~/components/command-palette";
 import { KeyboardShortcutsHelp } from "~/components/keyboard-shortcuts-help";
+import { QuickUrlModal } from "~/components/quick-url-modal";
 import {
   useKeyboardShortcuts,
   useSequentialKeys,
@@ -19,12 +20,17 @@ export function KeyboardShortcutsProvider({
 }: KeyboardShortcutsProviderProps) {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isQuickUrlModalOpen, setIsQuickUrlModalOpen] = useState(false);
   const router = useRouter();
   const modifierKey = getModifierKey();
 
-  const handleCreateUrl = useCallback(() => {
-    router.push("/dashboard?tab=create");
-  }, [router]);
+  const handleOpenQuickUrlModal = useCallback(() => {
+    setIsQuickUrlModalOpen(true);
+  }, []);
+
+  const handleCloseQuickUrlModal = useCallback(() => {
+    setIsQuickUrlModalOpen(false);
+  }, []);
 
   const handleCloseCommandPalette = useCallback(() => {
     setIsCommandPaletteOpen(false);
@@ -53,7 +59,7 @@ export function KeyboardShortcutsProvider({
       key: "n",
       ...(modifierKey === "cmd" ? { metaKey: true } : { ctrlKey: true }),
       shiftKey: true,
-      callback: handleCreateUrl,
+      callback: handleOpenQuickUrlModal,
       description: "Create new URL",
     },
     {
@@ -67,6 +73,7 @@ export function KeyboardShortcutsProvider({
       callback: () => {
         setIsCommandPaletteOpen(false);
         setIsHelpOpen(false);
+        setIsQuickUrlModalOpen(false);
       },
       description: "Close modals and dialogs",
     },
@@ -88,12 +95,16 @@ export function KeyboardShortcutsProvider({
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onCloseAction={handleCloseCommandPalette}
-        onCreateUrlAction={handleCreateUrl}
+        onCreateUrlAction={handleOpenQuickUrlModal}
         onShowHelpAction={handleOpenHelp}
       />
       <KeyboardShortcutsHelp
         isOpen={isHelpOpen}
         onCloseAction={handleCloseHelp}
+      />
+      <QuickUrlModal
+        isOpen={isQuickUrlModalOpen}
+        onCloseAction={handleCloseQuickUrlModal}
       />
     </>
   );
