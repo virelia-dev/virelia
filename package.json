@@ -50,6 +50,7 @@
     "typescript": "^5.8.3"
   },
   "devDependencies": {
+    "babel-plugin-react-compiler": "^19.1.0-rc.2",
     "oxlint": "^1.6.0",
     "prettier": "^3.6.2"
   },
