@@ -13,7 +13,7 @@ import {
 import { Copy, Check, Settings, QrCode, Zap } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { QRCodeComponent } from "~/components/ui/qr-code";
-import { UTMBuilder } from "./utm-builder";
+import { UTMBuilder } from "~/components/dashboard/utm-builder";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 

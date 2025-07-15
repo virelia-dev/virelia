@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
-import { Button } from "./button";
+import { Button } from "~/components/ui/button";
 import { Download, Share } from "lucide-react";
 import { toast } from "sonner";
 

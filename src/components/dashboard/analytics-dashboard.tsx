@@ -20,7 +20,7 @@ import {
   WifiOff,
 } from "lucide-react";
 import { useRealTimeAnalytics } from "~/hooks/use-real-time-analytics";
-import { AnalyticsExportModal } from "./analytics-export-modal";
+import { AnalyticsExportModal } from "~/components/dashboard/analytics-export-modal";
 
 interface AnalyticsData {
   totalUrls: number;

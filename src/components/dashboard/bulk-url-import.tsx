@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Upload, Download, FileText, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
@@ -64,7 +64,7 @@ export function BulkUrlImport({
   };
 
   const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -111,13 +111,13 @@ export function BulkUrlImport({
             results.failed++;
             const errorData = await response.json();
             results.errors.push(
-              `${urlData.originalUrl}: ${errorData.error || "Unknown error"}`,
+              `${urlData.originalUrl}: ${errorData.error || "Unknown error"}`
             );
           }
         } catch (importError) {
           results.failed++;
           results.errors.push(
-            `${urlData.originalUrl}: ${importError instanceof Error ? importError.message : "Network error"}`,
+            `${urlData.originalUrl}: ${importError instanceof Error ? importError.message : "Network error"}`
           );
         }
       }
@@ -135,7 +135,7 @@ export function BulkUrlImport({
     } catch (error) {
       console.error("Import error:", error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to process file",
+        error instanceof Error ? error.message : "Failed to process file"
       );
     } finally {
       setIsLoading(false);

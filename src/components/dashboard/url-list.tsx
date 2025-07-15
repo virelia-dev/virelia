@@ -21,11 +21,11 @@ import {
 } from "~/hooks/use-urls";
 import { useBulkOperations } from "~/hooks/use-bulk-operations";
 
-import { UrlFilters } from "./url-filters";
-import { AdvancedFiltersPanel } from "./advanced-filters";
-import { BulkOperationsToolbar } from "./bulk-operations-toolbar";
-import { UrlItem } from "./url-item";
-import { UrlListSkeleton } from "./url-list-skeleton";
+import { UrlFilters } from "~/components/dashboard/url-filters";
+import { AdvancedFiltersPanel } from "~/components/dashboard/advanced-filters";
+import { BulkOperationsToolbar } from "~/components/dashboard/bulk-operations-toolbar";
+import { UrlItem } from "~/components/dashboard/url-item";
+import { UrlListSkeleton } from "~/components/dashboard/url-list-skeleton";
 import {
   AnimatedPage,
   StaggerContainer,
@@ -33,8 +33,8 @@ import {
   AnimatedButton,
 } from "~/components/ui/animated";
 
-import { EditUrlModal } from "./edit-url-modal";
-import { QRCodeModal } from "./qr-code-modal";
+import { EditUrlModal } from "~/components/dashboard/edit-url-modal";
+import { QRCodeModal } from "~/components/dashboard/qr-code-modal";
 
 interface UrlListProps {
   refreshTrigger?: number;
@@ -107,7 +107,7 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
         toast.error("Failed to update URL. Please try again.");
       }
     },
-    [editingUrl, refetch, handleCloseEditDialog],
+    [editingUrl, refetch, handleCloseEditDialog]
   );
 
   const handleSelectAll = useCallback(() => {
@@ -120,12 +120,12 @@ export function UrlList({ refreshTrigger }: UrlListProps) {
 
   const isAllSelected = useMemo(
     () => filteredUrls.length > 0 && selectedUrls.size === filteredUrls.length,
-    [filteredUrls.length, selectedUrls.size],
+    [filteredUrls.length, selectedUrls.size]
   );
 
   const isPartiallySelected = useMemo(
     () => selectedUrls.size > 0 && selectedUrls.size < filteredUrls.length,
-    [selectedUrls.size, filteredUrls.length],
+    [selectedUrls.size, filteredUrls.length]
   );
 
   if (isLoading) {

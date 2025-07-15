@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Copy, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -41,10 +41,10 @@ export function UTMBuilder({
   const updateCustomParam = (
     index: number,
     field: keyof UTMParameter,
-    value: string,
+    value: string
   ) => {
     const updated = customParams.map((param, i) =>
-      i === index ? { ...param, [field]: value } : param,
+      i === index ? { ...param, [field]: value } : param
     );
     setCustomParams(updated);
   };
@@ -99,7 +99,7 @@ export function UTMBuilder({
       toast.success("URL updated with UTM parameters");
     } catch {
       toast.error(
-        "Cannot apply UTM parameters - please enter a valid URL first",
+        "Cannot apply UTM parameters - please enter a valid URL first"
       );
     }
   };

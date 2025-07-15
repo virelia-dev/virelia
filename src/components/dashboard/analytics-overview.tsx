@@ -26,7 +26,7 @@ import {
   Activity,
 } from "lucide-react";
 import { useRealTimeAnalytics } from "~/hooks/use-real-time-analytics";
-import { AnalyticsExportModal } from "./analytics-export-modal";
+import { AnalyticsExportModal } from "~/components/dashboard/analytics-export-modal";
 import Link from "next/link";
 
 interface AnalyticsData {
@@ -115,7 +115,7 @@ export function AnalyticsOverview() {
     (url) =>
       url.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       url.originalUrl.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      url.shortCode.toLowerCase().includes(searchQuery.toLowerCase()),
+      url.shortCode.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const formatDate = (dateString: string) => {
@@ -147,7 +147,7 @@ export function AnalyticsOverview() {
     const monthlyAverage = analytics.clicksThisMonth / 30;
     if (monthlyAverage === 0) return 0;
     return Math.round(
-      ((weeklyAverage - monthlyAverage) / monthlyAverage) * 100,
+      ((weeklyAverage - monthlyAverage) / monthlyAverage) * 100
     );
   };
 
@@ -450,7 +450,7 @@ export function AnalyticsOverview() {
                       <span className="text-xs text-muted-foreground">
                         {analytics.totalClicks > 0
                           ? Math.round(
-                              (stat.count / analytics.totalClicks) * 100,
+                              (stat.count / analytics.totalClicks) * 100
                             )
                           : 0}
                         %
@@ -489,7 +489,7 @@ export function AnalyticsOverview() {
                       <span className="text-xs text-muted-foreground">
                         {analytics.totalClicks > 0
                           ? Math.round(
-                              (stat.count / analytics.totalClicks) * 100,
+                              (stat.count / analytics.totalClicks) * 100
                             )
                           : 0}
                         %

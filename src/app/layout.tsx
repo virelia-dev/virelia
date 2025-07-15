@@ -5,7 +5,7 @@ import { Toaster } from "~/components/ui/sonner";
 import { ThemeProvider } from "~/components/theme-provider";
 import { KeyboardShortcutsProvider } from "~/components/keyboard-shortcuts-provider";
 import favicon from "~/assets/favicon.svg";
-import "./globals.css";
+import "~/app/globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
