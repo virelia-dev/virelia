@@ -26,6 +26,7 @@ import {
   Activity,
 } from "lucide-react";
 import { useRealTimeAnalytics } from "~/hooks/use-real-time-analytics";
+import { AnalyticsExportModal } from "./analytics-export-modal";
 import Link from "next/link";
 
 interface AnalyticsData {
@@ -205,8 +206,15 @@ export function AnalyticsOverview() {
             </>
           )}
         </div>
-        <div className="text-sm text-muted-foreground">
-          Last updated: {new Date().toLocaleTimeString()}
+        <div className="flex items-center gap-4">
+          <AnalyticsExportModal
+            totalClicks={analytics?.totalClicks || 0}
+            totalUrls={analytics?.totalUrls || 0}
+            dateRange="All time"
+          />
+          <div className="text-sm text-muted-foreground">
+            Last updated: {new Date().toLocaleTimeString()}
+          </div>
         </div>
       </div>
 

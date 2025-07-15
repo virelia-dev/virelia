@@ -20,6 +20,7 @@ import {
   WifiOff,
 } from "lucide-react";
 import { useRealTimeAnalytics } from "~/hooks/use-real-time-analytics";
+import { AnalyticsExportModal } from "./analytics-export-modal";
 
 interface AnalyticsData {
   totalUrls: number;
@@ -123,18 +124,25 @@ export function AnalyticsDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Analytics Dashboard</h2>
-        <div className="flex items-center gap-2 text-sm">
-          {analytics ? (
-            <>
-              <Wifi className="h-4 w-4 text-success" />
-              <span className="text-success">Live Data</span>{" "}
-            </>
-          ) : (
-            <>
-              <WifiOff className="h-4 w-4 text-warning" />
-              <span className="text-warning">Loading...</span>{" "}
-            </>
-          )}
+        <div className="flex items-center gap-4">
+          <AnalyticsExportModal
+            totalClicks={analytics?.totalClicks || 0}
+            totalUrls={analytics?.totalUrls || 0}
+            dateRange="All time"
+          />
+          <div className="flex items-center gap-2 text-sm">
+            {analytics ? (
+              <>
+                <Wifi className="h-4 w-4 text-success" />
+                <span className="text-success">Live Data</span>{" "}
+              </>
+            ) : (
+              <>
+                <WifiOff className="h-4 w-4 text-warning" />
+                <span className="text-warning">Loading...</span>{" "}
+              </>
+            )}
+          </div>
         </div>
       </div>
 
